@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.graphics.Point;
+import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -91,11 +92,9 @@ public class MainActivity extends Activity {
     @Override
     protected void onStop() {
         super.onStop();
-        TitleActivity.totalCoins += TitleActivity.coins;
         preferences = PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor editor = preferences.edit();
         editor.putInt("prevHighScore",getHighScore());
-        editor.putInt("prevTotalCoins",TitleActivity.totalCoins);
         editor.apply();
     }
 

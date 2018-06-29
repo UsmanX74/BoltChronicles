@@ -51,20 +51,23 @@ public class CreditsView extends View{
         tp = new TextPaint();
         tp1 = new TextPaint();
         tp2 = new TextPaint();
+        tp.setTypeface(Assets.tf);
+        tp1.setTypeface(Assets.tf);
+        tp2.setTypeface(Assets.tf);
         tp.setTextAlign(Paint.Align.CENTER);
-        tp.setTypeface(Typeface.create(Typeface.DEFAULT,Typeface.BOLD_ITALIC));
+        //tp.setTypeface(Typeface.create(Typeface.DEFAULT,Typeface.BOLD_ITALIC));
         tp.setTextSize(70*SCALE_CONST);
-        tp.setColor(Color.WHITE);
-        tp1.setColor(Color.WHITE);
+        tp.setColor(Color.GREEN);
+        tp1.setColor(Color.rgb(190,200,200));
         tp1.setTextSize(28*SCALE_CONST);
         tp1.getTextBounds((developed+"a"),0,(developed+"a").length(),developedBounds);
-        tp2.setTextSize(29*SCALE_CONST);
-        tp2.setColor(Color.WHITE);
+        tp2.setTextSize(31*SCALE_CONST);
+        tp2.setColor(Color.RED);
         tp2.setTextAlign(Paint.Align.CENTER);
         tp2.setFakeBoldText(true);
         tp2.getTextBounds(specialCredits,0,specialCredits.length(),specialCreditsBounds);
-        specialCreditsRect.set((int)((sW/2f)-(specialCreditsBounds.width()/2f)),(int)((sH*0.85f)-(specialCreditsBounds.height())),
-                (int)((sW/2f)-(specialCreditsBounds.width()/2f)+(specialCreditsBounds.width())),(int)((sH*0.85f)));
+        specialCreditsRect.set((int)((sW/2f)-(specialCreditsBounds.width()/2f)),(int)((sH*0.9f)-(specialCreditsBounds.height())),
+                (int)((sW/2f)-(specialCreditsBounds.width()/2f)+(specialCreditsBounds.width())),(int)((sH*0.9f)));
     }
 
 
@@ -75,13 +78,13 @@ public class CreditsView extends View{
         canvas.drawText("CREDITS",sW/2f,sH*0.15f,tp);
         canvas.drawText(developed,sW*0.065f,sH*0.3f,tp1);
         canvas.drawBitmap(Assets.logo,(sW*0.065f)+developedBounds.width(),(sH*0.29f)-(developedBounds.height()),null);
-        canvas.drawText("Lead Designer And Programmer: Juggernaut",(sW*0.065f),sH*0.5f,tp1);
-        canvas.drawText("Animation and Graphics: Juggernaut",(sW*0.065f),sH*0.57f,tp1);
-        canvas.drawText("Sound FX: bfxr.net" ,(sW*0.065f),sH*0.64f,tp1);
-        canvas.drawText("Background Music: The Whip - Kevin MacLeod (incompetech.com)",(sW*0.065f),sH*0.71f,tp1);
-        canvas.drawText("                  Licensed under Creative Commons: By Attribution 3.0 License",(sW*0.065f),sH*0.77f,tp1);
-        canvas.drawText("                  http://creativecommons.org/licenses/by/3.0/",(sW*0.065f),sH*0.83f,tp1);
-        //canvas.drawText(specialCredits,sW/2f,sH*0.85f,tp2);
+        canvas.drawText("Lead Designer And Programmer: Juggernaut",(sW*0.055f),sH*0.5f,tp1);
+        canvas.drawText("Animation and Graphics: Juggernaut",(sW*0.055f),sH*0.57f,tp1);
+        canvas.drawText("Sound FX: bfxr.net" ,(sW*0.055f),sH*0.64f,tp1);
+        canvas.drawText("Background Music: The Whip - Kevin MacLeod (incompetech.com)",(sW*0.055f),sH*0.71f,tp1);
+        canvas.drawText("       Licensed under Creative Commons: By Attribution 3.0 License",(sW*0.055f),sH*0.77f,tp1);
+        canvas.drawText("       http://creativecommons.org/licenses/by/3.0/",(sW*0.055f),sH*0.83f,tp1);
+        canvas.drawText(specialCredits,sW/2f,sH*0.9f,tp2);
         canvas.drawPoints(genStars, paint);
         //move the stars
         moveStars();
@@ -100,7 +103,7 @@ public class CreditsView extends View{
                 break;
             case MotionEvent.ACTION_UP:
                 if(specialCreditsRect.contains((int)X,(int)Y)){
-                    Toast.makeText(getContext(),"",Toast.LENGTH_LONG).show();
+                    Toast.makeText(getContext(),"game is not in beta phase yet",Toast.LENGTH_LONG).show();
                 }
                 break;
         }

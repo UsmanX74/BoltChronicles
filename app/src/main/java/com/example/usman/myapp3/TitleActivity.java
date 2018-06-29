@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.graphics.Point;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
@@ -19,27 +20,26 @@ public class TitleActivity extends Activity {
     //DECLARE ALL BITMAP VARIABLES HERE:
     static SharedPreferences preferences;
     static Bitmap tempPepe;
-    static int coins;
-    static int totalCoins;
-    static int [] highScores;
-    public static int getHighScore() {
-        return highScores[0];
-    }
-    public static void setHighScore(int highScore) {
-        TitleActivity.highScores[0] = highScore;
-    }
-    public static int getHighScore1() {
-        return highScores[1];
-    }
-    public static void setHighScore1(int highScore1) {
-        TitleActivity.highScores[1] = highScore1;
-    }
-    public static int getHighScore2() {
-        return highScores[2];
-    }
-    public static void setHighScore2(int highScore2) {
-        TitleActivity.highScores[2] = highScore2;
-    }
+    protected static int totalCoins;
+    //static int [] highScores;
+    //public static int getHighScore() {
+      //  return highScores[0];
+    //}
+    //public static void setHighScore(int highScore) {
+      //  TitleActivity.highScores[0] = highScore;
+    //}
+    //public static int getHighScore1() {
+        //return highScores[1];
+    //}
+    //public static void setHighScore1(int highScore1) {
+      //  TitleActivity.highScores[1] = highScore1;
+    //}
+    //public static int getHighScore2() {
+      //  return highScores[2];
+    //}
+    //public static void setHighScore2(int highScore2) {
+      //  TitleActivity.highScores[2] = highScore2;
+    //}
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,8 +52,9 @@ public class TitleActivity extends Activity {
         display.getSize(size);
             sW = size.x;
             sH = size.y;
+        Assets.loadFonts(getApplicationContext());
         super.onCreate(savedInstanceState);
-        highScores = new int[3];
+        //highScores = new int[3];
         if(!(Thread.getDefaultUncaughtExceptionHandler() instanceof CustomExceptionHandler)) {
             Thread.setDefaultUncaughtExceptionHandler
                     (new CustomExceptionHandler(Environment.getExternalStorageDirectory().getPath()));
@@ -68,9 +69,9 @@ public class TitleActivity extends Activity {
         preferences = PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor editor = preferences.edit();
         editor.putInt("TotalCoins",preferences.getInt("prevTotalCoins",0));
-        highScores[0] = preferences.getInt("highscore",0);
-        highScores[1] = preferences.getInt("highscore1",0);
-        highScores[2] = preferences.getInt("highscore2",0);
+        //highScores[0] = preferences.getInt("highscore",0);
+        //highScores[1] = preferences.getInt("highscore1",0);
+        //highScores[2] = preferences.getInt("highscore2",0);
         editor.apply();
         totalCoins = preferences.getInt("TotalCoins",0);
         setContentView(tView);
@@ -104,6 +105,11 @@ public class TitleActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
+        if(TitleView.sound==0){
+            Assets.mp.setVolume(0f,0f);
+        }else if(TitleView.sound==1){
+            Assets.mp.setVolume(1f,1f);
+        }
         Assets.mp.start();
         if(!Assets.mp.isLooping()){
             Assets.mp.setLooping(true);

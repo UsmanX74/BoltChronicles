@@ -7,6 +7,8 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
+import android.graphics.Typeface;
+import android.text.TextPaint;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -14,7 +16,8 @@ import java.util.Random;
 
 public class TitleView extends View {
     Context myContext;
-    static int viewIndex = 0;
+    static int viewIndex = 0, sound = 1;
+    private int titleclick =0;
     private static int screenW, screenH;
     static float scale;
     public static boolean isBringTurret() {
@@ -25,6 +28,7 @@ public class TitleView extends View {
     }
     private Random generator;
     public static float SCALE_CONST;
+    String title="BOLT CHRONICLES",play = "PLAY", options="OPTIONS",store="STORE",credits="CREDITS";
     int no_of_stars= 230;
     float [] genStars;
     int a=0;
@@ -32,6 +36,7 @@ public class TitleView extends View {
     int c=0;
     public static boolean bringTurret = false;
     Paint paint;
+    TextPaint buttonPaint,titlePaint;
     Intent intent;
     Intent myintent;
 
@@ -45,10 +50,20 @@ public class TitleView extends View {
         myContext = context;
         //vs.addView(iView,0);
         paint = new Paint();
+        buttonPaint = new TextPaint();
+        titlePaint = new TextPaint();
         myintent = new Intent(context,ButtonActivity.class);
         paint.setTextSize((float)(24*(scale/1.5)));
         paint.setColor(Color.WHITE);
         paint.setStrokeWidth(scale);
+        buttonPaint.setTypeface(Assets.tf1);
+        buttonPaint.setTextSize(70*SCALE_CONST);
+        buttonPaint.setColor(Color.RED);
+        buttonPaint.setTextAlign(Paint.Align.CENTER);
+        titlePaint.setTypeface(Assets.tf);
+        titlePaint.setTextSize(70*SCALE_CONST);
+        titlePaint.setColor(Color.RED);
+        titlePaint.setTextAlign(Paint.Align.CENTER);
         generator = new Random();
         genStars= new float[no_of_stars*2];//Star Co-Ordinates
         for(int i=0; i<no_of_stars; i++){
@@ -72,14 +87,21 @@ public class TitleView extends View {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         canvas.drawARGB(255, 0, 0, 43);
+
         //canvas.drawText("Right side = new features testing,    Left side = normal game.",30,50,paint);
         //canvas.drawText("tap on either the left side or right side of the screen",30,90,paint);
-        canvas.drawBitmap(Assets.newTitle,(float)((screenW/2)-(Assets.newTitle.getWidth()/2)),(float)(screenH*0.06),null);
+        canvas.drawText(title,(float)(screenW*0.5),(float)(screenH*0.12),titlePaint);
+        //canvas.drawBitmap(Assets.newTitle,(float)((screenW/2)-(Assets.newTitle.getWidth()/2)),(float)(screenH*0.06),null);
         canvas.drawBitmap(Assets.playButton,(float)((screenW/2)-(Assets.playButton.getWidth()/2)),(float)(screenH*0.26),null);
         canvas.drawBitmap(Assets.optionsButton,(float)((screenW/2)-(Assets.optionsButton.getWidth()/2)),(float)(screenH*0.40),null);
         canvas.drawBitmap(Assets.storeButton,(float)((screenW/2)-(Assets.storeButton.getWidth()/2)),(float)(screenH*0.54),null);
-        canvas.drawBitmap(Assets.highscoresButton,(float)((screenW/2)-(Assets.highscoresButton.getWidth()/2)),(float)(screenH*0.68),null);
-        canvas.drawBitmap(Assets.creditsButton,(float)((screenW/2)-(Assets.creditsButton.getWidth()/2)),(float)(screenH*0.82),null);
+        //canvas.drawBitmap(Assets.highscoresButton,(float)((screenW/2)-(Assets.highscoresButton.getWidth()/2)),(float)(screenH*0.68),null);
+        canvas.drawBitmap(Assets.creditsButton,(float)((screenW/2)-(Assets.creditsButton.getWidth()/2)),(float)(screenH*0.68),null);
+        if (sound==1){
+            canvas.drawBitmap(Assets.soundOn,(float)(screenW*0.93),(float)(screenH*0.06),null);
+        }else if(sound==0){
+            canvas.drawBitmap(Assets.soundOff,(float)(screenW*0.93),(float)(screenH*0.06),null);
+        }
         //canvas.drawText("current View: "+TitleActivity.currentView,100,150,paint);
         //canvas.drawCircle(12,12,12,blue);
         //canvas.drawBitmap(Assets.title,(float)((screenW/2)-Assets.title.getWidth()/2),(float)(screenH*0.1),null);
@@ -125,9 +147,20 @@ public class TitleView extends View {
                     viewIndex = 0;
                     getContext().startActivity(myintent);
                 }
+                /*
                 if(withinHighscoresButtonBound(X,Y)){
                     viewIndex = 3;
                     getContext().startActivity(myintent);
+                }
+                */
+                if(withinButtonBounds(X,Y,Assets.soundOn,(float)(screenW*0.93),(float)(screenH*0.06))){
+                    if(sound==1){
+                        sound=0;
+                        Assets.mp.setVolume(0f,0f);
+                    }else if(sound==0){
+                        sound=1;
+                        Assets.mp.setVolume(1f,1f);
+                    }
                 }
                 break;
         }
@@ -157,6 +190,13 @@ public class TitleView extends View {
                 }
             }
         }
+    }
+    public boolean withinButtonBounds(float touchX, float touchY, Bitmap bitmap, float bitmapX, float bitmapY){
+        if(touchX> bitmapX && touchX<(bitmapX+bitmap.getWidth())
+                && touchY> bitmapY && touchY<(bitmapY+bitmap.getHeight())){
+            return true;
+        }
+        return false;
     }
     public boolean withinPlayButtonBounds(int X, int Y){
         if(X>((screenW/2)-(Assets.playButton.getWidth()/2)) && X<(((screenW/2)-(Assets.playButton.getWidth()/2))+Assets.playButton.getWidth())
@@ -188,7 +228,7 @@ public class TitleView extends View {
     }
     public boolean withinCreditsButtonBound(int X, int Y){
         if(X>((screenW/2)-(Assets.creditsButton.getWidth()/2)) && X<(((screenW/2)-(Assets.creditsButton.getWidth()/2))+Assets.creditsButton.getWidth())
-                && Y>(screenH*0.82) && Y<((screenH*0.82)+(Assets.creditsButton.getHeight()))){
+                && Y>(screenH*0.68) && Y<((screenH*0.68)+(Assets.creditsButton.getHeight()))){
             return true;
         }
         return false;

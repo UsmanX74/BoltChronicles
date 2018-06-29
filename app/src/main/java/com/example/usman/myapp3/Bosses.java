@@ -66,7 +66,7 @@ class Boss2 extends Bosses{
     public ArrayList<BossProjectiles> getBoss2Projectiles() {
         return boss2Projectiles;
     }
-    public Boss2(int startX,int startY){
+    Boss2(int startX, int startY){
         setX(startX); setY(startY);
         setHealth(120);
         setVisible(false);
@@ -143,7 +143,7 @@ class Boss2 extends Bosses{
     }
 }
 class Boss3 extends Bosses{
-    public Boss3(int startX,int startY){
+    Boss3(int startX, int startY){
         setX(startX); setY(startY);
     }
     @Override

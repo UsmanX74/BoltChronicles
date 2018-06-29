@@ -107,9 +107,9 @@ public class HighScoresView extends View{
         editor.putInt("highscore1",0);
         editor.putInt("highscore2",0);
         editor.putInt("potentialHighscore",0);
-        TitleActivity.setHighScore(0);
-        TitleActivity.setHighScore1(0);
-        TitleActivity.setHighScore2(0);
+        //TitleActivity.setHighScore(0);
+        //TitleActivity.setHighScore1(0);
+        //TitleActivity.setHighScore2(0);
         editor.apply();
     }
     public void moveStars(){
