@@ -8,6 +8,7 @@ import android.graphics.Typeface;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.SoundPool;
+import android.util.Base64;
 
 
 public class Assets {
@@ -25,12 +26,27 @@ public class Assets {
     //public static MediaPlayer mp;
 
 
-    public static void loadFonts(Context context){
+    protected static void loadFonts(Context context){
         tf = Typeface.createFromAsset(context.getAssets(),"fonts/Hermes.otf");
         tf1 = Typeface.createFromAsset(context.getAssets(), "fonts/Noise.ttf");
     }
 
-    public static void loadBitmaps(Resources res){
+    protected static String numToString(int input){
+        return Integer.toString(input);
+
+    }
+    protected static int stringToNum(String input) {
+        return Integer.parseInt(input);
+    }
+    protected static String encrypt(String input) {
+        // This is base64 encoding, which is not an encryption
+        return Base64.encodeToString(input.getBytes(), Base64.DEFAULT);
+    }
+    protected static String decrypt(String input) {
+        return new String(Base64.decode(input, Base64.DEFAULT));
+    }
+
+    protected static void loadBitmaps(Resources res){
         logo = BitmapFactory.decodeResource(res,R.drawable.logo_white_small);
         boltShip = BitmapFactory.decodeResource(res,R.drawable.player3);
         bossShip = BitmapFactory.decodeResource(res,R.drawable.bossship);

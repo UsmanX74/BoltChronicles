@@ -5,7 +5,6 @@ import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.graphics.Point;
-import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
@@ -16,11 +15,10 @@ import android.view.WindowManager;
 public class TitleActivity extends Activity {
     public static int sW,sH;
     TitleView tView;
-    boolean handled = false;
     //DECLARE ALL BITMAP VARIABLES HERE:
     static SharedPreferences preferences;
     static Bitmap tempPepe;
-    protected static int totalCoins;
+    protected int totalCoins;
     //static int [] highScores;
     //public static int getHighScore() {
       //  return highScores[0];
@@ -68,12 +66,12 @@ public class TitleActivity extends Activity {
         Assets.loadSounds(getApplicationContext());
         preferences = PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor editor = preferences.edit();
-        editor.putInt("TotalCoins",preferences.getInt("prevTotalCoins",0));
+        //editor.putInt("TotalCoins",preferences.getInt("prevTotalCoins",0));
         //highScores[0] = preferences.getInt("highscore",0);
         //highScores[1] = preferences.getInt("highscore1",0);
         //highScores[2] = preferences.getInt("highscore2",0);
         editor.apply();
-        totalCoins = preferences.getInt("TotalCoins",0);
+        //totalCoins = preferences.getInt("TotalCoins",0);
         setContentView(tView);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
         Assets.mp.start();
@@ -83,7 +81,6 @@ public class TitleActivity extends Activity {
         //INITIALIZE ALL BITMAP RESOURCES HERE:
         tempPepe = Assets.pepeBoss;
     }
-
 
     @Override
     protected void onStop() {

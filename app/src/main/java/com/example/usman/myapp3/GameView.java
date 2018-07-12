@@ -10,13 +10,15 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.preference.PreferenceManager;
 import android.text.TextPaint;
+import android.util.Base64;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Toast;
-
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Random;
+
+import static android.content.Context.MODE_PRIVATE;
 import static com.example.usman.myapp3.TitleView.SCALE_CONST;
 
 public class GameView extends View {
@@ -61,7 +63,7 @@ public class GameView extends View {
     int b = 1;
     int c = 0;
     private static int gen = 0;
-    protected static int coins = 0;
+    protected int coins = 0;
     public static int ennum = 0;
     Iterator itr, eItr;
     Context myContext;
@@ -73,6 +75,7 @@ public class GameView extends View {
     Boss2 bossship2;
     Turret turretGun;
     int densityDpi;
+    String sessionCoins = "0";
     private int gen2 = 0, gen3 = 0;
     public static long eventDownDuration;
     Timer enemyTimer, coinTimer, turretShootTimer, reloadTimer;
@@ -85,10 +88,14 @@ public class GameView extends View {
     Boss3 boss3;
     Rect resumeBounds, quitBounds, resumeRect, quitRect, playBounds, playRect, restartBounds, restartRect;
     private boolean okap;
+    int testone = 0;
     int pointerCount, eventaction;
+    SharedPreferences.Editor editor;
 
     public GameView(final Context context) {
         super(context);
+        MainActivity.preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
+        editor = MainActivity.preferences.edit();
         x = new int[max_pointers];
         y = new int[max_pointers];
         x_up = new int[max_pointers];
@@ -272,7 +279,7 @@ public class GameView extends View {
             canvas.drawBitmap(Assets.boltShip, player.getbX(), player.getbY(), null);
 
             //CODE TO BRING A COIN //STARTS HERE
-            if (coinTimer.isTime(70000)) {
+            if (coinTimer.isTime(7000)) {
                 generateCoinPosition();
                 coinTimer.resetWaitFor();
                 lastx = genCoinX;
@@ -490,6 +497,10 @@ public class GameView extends View {
             //canvas.drawText("event down duration: " + eventDownDuration/1000 + " seconds",300,300,paint);
             canvas.drawText("HighScore: " + MainActivity.preferences.getInt("HighScore", 0), 20, (int) (screenH * 0.99), paint);
             canvas.drawText("Coins: " + coins, (float) (getScreenW() / 3), (float) (screenH * 0.99), paint);
+            //canvas.drawText("test1: "+Assets.decrypt("0"),400,600,whitePaintMedium);
+            //canvas.drawText("test2: "+Assets.decrypt("okay"),400,500,whitePaintMedium);
+            //canvas.drawText(encrypt("8674"),400,400,whitePaintMedium);
+            //canvas.drawText(decrypt(encrypt("8674")),400,500,whitePaintMedium);
             //canvas.drawText("high1 "+TitleActivity.getHighScore(),(float)(getScreenW()/3),(float)(screenH * 0.20), paint);
             //canvas.drawText("high2 "+TitleActivity.getHighScore1(),(float)(getScreenW()/3),(float)(screenH * 0.25), paint);
             //canvas.drawText("high3 "+TitleActivity.getHighScore2(),(float)(getScreenW()/3),(float)(screenH * 0.30), paint);
@@ -531,20 +542,31 @@ public class GameView extends View {
             canvas.drawARGB(255, 0, 0, 50);
             canvas.drawPoints(genStars, paint);
             canvas.drawText("GAME OVER", screenW / 2, (float) (screenH * 0.2), whitePaint);
-            MainActivity.preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-            SharedPreferences.Editor editor = MainActivity.preferences.edit();
             editor.putInt("prevHighScore", MainActivity.getHighScore());
+            /*the methods stringInNum, numInString, encrypt, decrypt are all static and declared in Assets Class.
+            * The next 5 lines after this comment are explained:
+            * line 1 gives the inital value to totalCoins variable located in TitleActivity, by default it is zero.
+            * line 1.5 has an if statement which is a complex work around, forget about that.
+            * line 2 adds the coins from last game session to totalCoins
+            * line 3 converts the totalCoins int into a string called sessionCoins
+            * line 4/5 encrypts the sessionCoins string and saves it in sharedPrefs, the key for the sessionCoins is also encrypted.*/
+            t.totalCoins = Assets.stringToNum(Assets.decrypt((MainActivity.preferences.getString(Assets.encrypt("TotalCoins"),Assets.encrypt("0")))));
+            /*line 1.5 ---> */ if(testone == 0) {
+                t.totalCoins = t.totalCoins + coins;
+            }
+            testone += 1;
+            sessionCoins = Assets.numToString(t.totalCoins);
+            editor.putString(Assets.encrypt("TotalCoins"),Assets.encrypt(sessionCoins));
             editor.apply();
-            //TitleActivity.preferences.getInt("")
-            //canvas.drawText("high1 "+TitleActivity.getHighScore(),(float)(getScreenW()*0.25f),(float)(screenH * 0.20), paint);
-            //canvas.drawText("high2 "+TitleActivity.getHighScore1(),(float)(getScreenW()*0.25f),(float)(screenH * 0.25), paint);
-            //canvas.drawText("high3 "+TitleActivity.getHighScore2(),(float)(getScreenW()*0.25f),(float)(screenH * 0.30), paint);
+            editor.commit();
+            //canvas.drawText("game running: " + gameRunning,400,testone,whitePaintMedium);
             canvas.drawText("Potential High " + TitleActivity.preferences.getInt("potentialHighscore", 0), (float) (getScreenW() / 3), (float) (screenH * 0.35), paint);
             canvas.drawText(play, (screenW / 2), (float) (screenH * 0.48f), tp);
             canvas.drawText(quit, (float) (screenW / 2f), (float) (screenH * 0.62f), tp);
             canvas.drawText("Score: " + MainActivity.score, (float) (screenW * 0.06), (float) (screenH * 0.08), paint);
             canvas.drawText("HighScore: " + MainActivity.preferences.getInt("prevHighScore", 0), 20, (int) (screenH * 0.99), paint);
             canvas.drawText("Coins: " + coins, (float) (getScreenW() / 3), (float) (screenH * 0.99), paint);
+            canvas.drawText("Total Coins: "+Assets.decrypt(MainActivity.preferences.getString(Assets.encrypt("TotalCoins"),Assets.encrypt("0"))), (float) (getScreenW() / 2), (float) (screenH * 0.99), paint);
         } else if (gamePaused) {
             canvas.drawARGB(255, 0, 0, 50);
             canvas.drawPoints(genStars, paint);
@@ -985,6 +1007,17 @@ public class GameView extends View {
     */
 
 }
+    public void experiemntalCodeYetAgain(){
+        /*// Write
+        SharedPreferences preferences = getSharedPreferences("some_prefs_name", MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putString(encrypt("password"), encrypt("dummypass"));
+        editor.apply(); // Or commit if targeting old devices
+        // Read
+        SharedPreferences preferences = getSharedPreferences("some_prefs_name", MODE_PRIVATE);
+        String passEncrypted = preferences.getString(encrypt("password"), encrypt("default"));
+        String pass = decrypt(passEncrypted);*/
+    }
 
     @Override
     public boolean onTouchEvent(MotionEvent event){
@@ -1204,7 +1237,9 @@ public class GameView extends View {
         myContext = getContext();
         MainActivity.score = 0;
         coins = 0;
+        testone = 0;
         i=1;
+        gunclip = 60;
         scale = getContext().getResources().getDisplayMetrics().density;
         screenW = MainActivity.getsX();
         screenH = MainActivity.getsY();
