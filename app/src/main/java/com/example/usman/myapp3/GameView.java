@@ -8,6 +8,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.graphics.RectF;
 import android.preference.PreferenceManager;
 import android.text.TextPaint;
 import android.util.Base64;
@@ -19,6 +20,10 @@ import java.util.Iterator;
 import java.util.Random;
 
 import static android.content.Context.MODE_PRIVATE;
+import static com.example.usman.myapp3.TitleActivity.currentMusicVolume;
+import static com.example.usman.myapp3.TitleActivity.currentSoundVolume;
+import static com.example.usman.myapp3.TitleActivity.sH;
+import static com.example.usman.myapp3.TitleActivity.sW;
 import static com.example.usman.myapp3.TitleView.SCALE_CONST;
 
 public class GameView extends View {
@@ -79,17 +84,16 @@ public class GameView extends View {
     private int gen2 = 0, gen3 = 0;
     public static long eventDownDuration;
     Timer enemyTimer, coinTimer, turretShootTimer, reloadTimer;
-    Animation anim;
-    int mi = 0;
     int globalx = -300, globaly = -300;
     TitleActivity t;
     boolean bringCoin, turretUp, turretDown;
     int genCoinX = -30, genCoinY = -30, mf, lastx, lasty;
     Boss3 boss3;
-    Rect resumeBounds, quitBounds, resumeRect, quitRect, playBounds, playRect, restartBounds, restartRect;
+    RectF playRect, resumeRect, quitRect;
     private boolean okap;
     int testone = 0;
     int pointerCount, eventaction;
+    FramesAnimation blastAnimation;
     SharedPreferences.Editor editor;
 
     public GameView(final Context context) {
@@ -112,14 +116,14 @@ public class GameView extends View {
         }
         MainActivity.score = 0;
         TitleActivity.preferences.edit().putInt("potentialHighscore", 0).apply();
-        resumeBounds = new Rect();
-        quitBounds = new Rect();
-        resumeRect = new Rect();
-        quitRect = new Rect();
-        playBounds = new Rect();
-        restartBounds = new Rect();
-        playRect = new Rect();
-        restartRect = new Rect();
+        //resumeBounds = new Rect();
+        //quitBounds = new Rect();
+        //resumeRect = new Rect();
+        //quitRect = new Rect();
+        //playBounds = new Rect();
+        //restartBounds = new Rect();
+        //playRect = new Rect();
+        //restartRect = new Rect();
         gameRunning = true;
         gamePaused = false;
         gameEnded = false;
@@ -147,8 +151,10 @@ public class GameView extends View {
         yellowPaint = new Paint();
         whitePaint = new Paint();
         whitePaintMedium = new Paint();
+        tp = new TextPaint();
         bulletPaint.setColor(Color.YELLOW);
-        paint.setColor(Color.WHITE);
+        paint.setColor(Color.rgb(190,200,200));
+        paint.setTypeface(Assets.tf);
         paint.setTextSize((float) (23.4 * SCALE_CONST));
         paint.setStrokeWidth(scale);
         //Log.d("Tag","stroke width: " + (1*(float)(scale/1.5)));
@@ -158,27 +164,20 @@ public class GameView extends View {
         bluePaint.setColor(Color.BLUE);
         greenPaint.setColor(Color.GREEN);
         yellowPaint.setColor(Color.YELLOW);
-        whitePaint.setColor(Color.WHITE);
+        whitePaint.setColor(Color.rgb(190,200,200));
+        whitePaint.setTypeface(Assets.tf);
         whitePaint.setTextSize((70 * SCALE_CONST));
-        whitePaint.setFakeBoldText(true);
-        whitePaintMedium.setColor(Color.WHITE);
+        whitePaint.setTextAlign(Paint.Align.CENTER);
+        whitePaintMedium.setColor(Color.rgb(190,200,200));
+        whitePaintMedium.setTypeface(Assets.tf);
         whitePaintMedium.setTextSize(24*SCALE_CONST);
         whitePaintMedium.setTextAlign(Paint.Align.CENTER);
-        tp = new TextPaint();
         tp.setColor(Color.WHITE);
+        tp.setTypeface(Assets.tf);
         tp.setTextSize((float) (56 * SCALE_CONST));
-        //tp.setFakeBoldText(true);
         tp.setTextAlign(TextPaint.Align.CENTER);
-        tp.getTextBounds(resume, 0, resume.length(), resumeBounds);
-        tp.getTextBounds(quit, 0, quit.length(), quitBounds);
-        tp.getTextBounds(play, 0, play.length(), playBounds);
-        resumeRect.set((int) ((screenW / 2f) - (resumeBounds.width() / 2f)), (int) ((screenH * 0.48) - (resumeBounds.height())),
-                (int) ((screenW / 2f) - (resumeBounds.width() / 2f) + (resumeBounds.width())), (int) ((screenH * 0.48)));
-        quitRect.set((int) ((screenW / 2f) - (quitBounds.width() / 2f)), (int) ((screenH * 0.62) - (quitBounds.height())),
-                (int) ((screenW / 2f) - (quitBounds.width() / 2f) + (quitBounds.width())), (int) ((screenH * 0.62)));
-        playRect.set((int) ((screenW / 2f) - (quitBounds.width() / 2f)), (int) ((screenH * 0.48f) - (quitBounds.height())),
-                (int) ((screenW / 2f) - (quitBounds.width() / 2f) + (quitBounds.width())), (int) ((screenH * 0.48f)));
-        whitePaint.setTextAlign(Paint.Align.CENTER);
+        //play and resume @(x,y) = (sW*0.5 , sH*0.48)
+        //quit @ (x,y) = (sW*0.5 , sH*62)
         pepeBulletPaint = new Paint();
         pepeBulletPaint.setColor(Color.RED);
         bossBulletPaint = new Paint();
@@ -193,6 +192,12 @@ public class GameView extends View {
             genStars[b] = generator.nextInt(screenH);
             b += 2;
         }
+        playRect = new RectF();
+        resumeRect = new RectF();
+        quitRect = new RectF();
+        playRect = stringRect("Play Again",sW*0.5f,sH*0.48f,tp,null,true);
+        resumeRect = stringRect("Resume",sW*0.5f,sH*0.48f,tp,null,true);
+        quitRect = stringRect("Quit to Main Menu",sW*0.5f,sH*0.62f,tp,null,true);
         starSpeed = 6f;
         player = new Boltship();
         enemySpawnInterval = 750;
@@ -220,19 +225,19 @@ public class GameView extends View {
         coinTimer = new Timer();
         turretShootTimer = new Timer();
         reloadTimer = new Timer();
-        anim = new Animation();
-        anim.addFrame(Assets.explosion1, 100);
-        anim.addFrame(Assets.explosion2, 100);
-        anim.addFrame(Assets.explosion3, 100);
-        anim.addFrame(Assets.explosion4, 100);
-        anim.addFrame(Assets.explosion5, 100);
-        anim.addFrame(Assets.explosion6, 100);
-        anim.addFrame(Assets.explosion7, 100);
-        anim.addFrame(Assets.explosion8, 100);
-        anim.addFrame(Assets.explosion9, 100);
-        anim.addFrame(Assets.explosion10, 100);
-        anim.addFrame(Assets.explosion11, 100);
-        anim.addFrame(Assets.explosion12, 100);
+        blastAnimation = new FramesAnimation(45,12,false);
+        blastAnimation.addFrame(Assets.explosion1);
+        blastAnimation.addFrame(Assets.explosion2);
+        blastAnimation.addFrame(Assets.explosion3);
+        blastAnimation.addFrame(Assets.explosion4);
+        blastAnimation.addFrame(Assets.explosion5);
+        blastAnimation.addFrame(Assets.explosion6);
+        blastAnimation.addFrame(Assets.explosion7);
+        blastAnimation.addFrame(Assets.explosion8);
+        blastAnimation.addFrame(Assets.explosion9);
+        blastAnimation.addFrame(Assets.explosion10);
+        blastAnimation.addFrame(Assets.explosion11);
+        blastAnimation.addFrame(Assets.explosion12);
         gameRunning = true;
     }
 
@@ -279,7 +284,7 @@ public class GameView extends View {
             canvas.drawBitmap(Assets.boltShip, player.getbX(), player.getbY(), null);
 
             //CODE TO BRING A COIN //STARTS HERE
-            if (coinTimer.isTime(7000)) {
+            if (coinTimer.isTime(16000)) {
                 generateCoinPosition();
                 coinTimer.resetWaitFor();
                 lastx = genCoinX;
@@ -303,17 +308,25 @@ public class GameView extends View {
             //canvas.drawBitmap(scaledBossShip2,bossship2.getvX(),bossship2.getvY(),null);
             //canvas.drawText("boss2 health" + bossship2.health,300,300,paint);
 
+            //for (int i = 0; i < projectiles.size(); i++) {
+                //Projectiles p = (Projectiles) projectiles.get(i);
+                //p.update();
+                //canvas.drawRect(p.getR(), bulletPaint);
+                //itr = projectiles.iterator();
+                //while (itr.hasNext()) {
+                    //s = (Projectiles) itr.next();
+                    //if (!s.isVisible()) {
+                  //      itr.remove();
+                //    }
+              //  }
+            //}
             for (int i = 0; i < projectiles.size(); i++) {
                 Projectiles p = (Projectiles) projectiles.get(i);
                 p.update();
                 canvas.drawRect(p.getR(), bulletPaint);
-                itr = projectiles.iterator();
-                while (itr.hasNext()) {
-                    s = (Projectiles) itr.next();
-                    if (!s.isVisible()) {
-                        itr.remove();
+                    if (!p.isVisible()) {
+                        projectiles.remove(i);
                     }
-                }
             }
             for (int i = 0; i < turretProjectiles.size(); i++) {
                 TurretProjectiles tp = (TurretProjectiles) turretProjectiles.get(i);
@@ -418,7 +431,7 @@ public class GameView extends View {
             }
             checkHighScore();
             checkCollision();
-            checkPlayerCollision();
+            checkPlayerEnemyCollision();
 
             if (bringPepe) {
                 if (shouldPepeShoot() || pepeboss.getpY() == player.getbY()) {
@@ -480,6 +493,7 @@ public class GameView extends View {
             rotateTurret();
             checkTurretBulletCollision();
 
+            blastAnimation.drawAnimation(canvas,globalx,globaly,1);
             //resetHighscore();
             /*
             if(bringCoin){
@@ -488,27 +502,22 @@ public class GameView extends View {
                 }
             }
             */
-            //canvas.drawBitmap(chExplosion,500,300,null);
             canvas.drawText("Score: " + MainActivity.score, (float) (screenW * 0.06), (float) (screenH * 0.08), paint);
             canvas.drawBitmap(Assets.healthBar, (int) (screenW * 0.06), (int) (screenH * 0.004), null);
             canvas.drawBitmap(Assets.pause, (float) (screenW * 0.018), (float) (screenH * 0.01), null);
             canvas.drawRect((int) (screenW * 0.06) + (3 * scale), (int) (screenH * 0.004) + (3 * scale), (int) (screenW * 0.06) + (3 * scale) + wi, (int) (screenH * 0.004) + (3 * scale) + he, redPaint);
             //canvas.drawRect(100,100,200,200,pepeBulletPaint);
             //canvas.drawText("event down duration: " + eventDownDuration/1000 + " seconds",300,300,paint);
-            canvas.drawText("HighScore: " + MainActivity.preferences.getInt("HighScore", 0), 20, (int) (screenH * 0.99), paint);
-            canvas.drawText("Coins: " + coins, (float) (getScreenW() / 3), (float) (screenH * 0.99), paint);
-            //canvas.drawText("test1: "+Assets.decrypt("0"),400,600,whitePaintMedium);
-            //canvas.drawText("test2: "+Assets.decrypt("okay"),400,500,whitePaintMedium);
-            //canvas.drawText(encrypt("8674"),400,400,whitePaintMedium);
-            //canvas.drawText(decrypt(encrypt("8674")),400,500,whitePaintMedium);
+            canvas.drawText("HighScore: " + MainActivity.preferences.getInt("HighScore", 0), 20, (int) (screenH * 0.98), paint);
+            canvas.drawText("Coins: " + coins, (float) (getScreenW() / 3), (float) (screenH * 0.98), paint);
             //canvas.drawText("high1 "+TitleActivity.getHighScore(),(float)(getScreenW()/3),(float)(screenH * 0.20), paint);
             //canvas.drawText("high2 "+TitleActivity.getHighScore1(),(float)(getScreenW()/3),(float)(screenH * 0.25), paint);
             //canvas.drawText("high3 "+TitleActivity.getHighScore2(),(float)(getScreenW()/3),(float)(screenH * 0.30), paint);
             //canvas.drawText("Potential High "+TitleActivity.preferences.getInt("potentialHighscore",0),(float)(getScreenW()/3),(float)(screenH * 0.35), paint);
             if (reloading) {
-                canvas.drawText("Reloading", (float) (getScreenW() / 2), (float) (screenH * 0.99), paint);
+                canvas.drawText("Reloading", (float) (getScreenW() / 2), (float) (screenH * 0.98), paint);
             } else {
-                canvas.drawText("Clip: " + gunclip, (float) (getScreenW() / 2), (float) (screenH * 0.99), paint);
+                canvas.drawText("Clip: " + gunclip, (float) (getScreenW() / 2), (float) (screenH * 0.98), paint);
             }
             //canvas.drawText("Boss 2 x: " + boss2.getX() + " boss2 speedX="+boss2.getSpeedX(), screenW / 2, (float) (screenH * 0.2), paint);
             //canvas.drawText("game paused: " + gamePaused,300,300,paint);
@@ -519,10 +528,6 @@ public class GameView extends View {
             //canvas.drawText("turret angle: " + turretGun.rotationAngleinDeg, 300,400,paint);
             //canvas.drawBitmap(anim.getImage(),200,200,null);
             //resetHighscore();
-            if (mi < 27) {
-                doOneExplosion(canvas, globalx, globaly, 30);
-            }
-            mi++;
             //canvas.drawText("pointer count: " + pointerCount,200,200,paint);
             //canvas.drawText("test_var: "+testvar,200,250,paint);
             //checkPause();
@@ -560,21 +565,21 @@ public class GameView extends View {
             editor.apply();
             editor.commit();
             //canvas.drawText("game running: " + gameRunning,400,testone,whitePaintMedium);
-            canvas.drawText("Potential High " + TitleActivity.preferences.getInt("potentialHighscore", 0), (float) (getScreenW() / 3), (float) (screenH * 0.35), paint);
-            canvas.drawText(play, (screenW / 2), (float) (screenH * 0.48f), tp);
-            canvas.drawText(quit, (float) (screenW / 2f), (float) (screenH * 0.62f), tp);
+            //canvas.drawText("Potential High " + TitleActivity.preferences.getInt("potentialHighscore", 0), (float) (getScreenW() / 3), (float) (screenH * 0.35), paint);
+            canvas.drawText("Play Again", (screenW / 2), (float) (screenH * 0.48f), tp);
+            canvas.drawText("Quit to Main Menu", (float) (screenW / 2f), (float) (screenH * 0.62f), tp);
             canvas.drawText("Score: " + MainActivity.score, (float) (screenW * 0.06), (float) (screenH * 0.08), paint);
-            canvas.drawText("HighScore: " + MainActivity.preferences.getInt("prevHighScore", 0), 20, (int) (screenH * 0.99), paint);
-            canvas.drawText("Coins: " + coins, (float) (getScreenW() / 3), (float) (screenH * 0.99), paint);
-            canvas.drawText("Total Coins: "+Assets.decrypt(MainActivity.preferences.getString(Assets.encrypt("TotalCoins"),Assets.encrypt("0"))), (float) (getScreenW() / 2), (float) (screenH * 0.99), paint);
+            canvas.drawText("HighScore: " + MainActivity.preferences.getInt("prevHighScore", 0), 20, (int) (screenH * 0.98), paint);
+            canvas.drawText("Coins: " + coins, (float) (getScreenW() / 3), (float) (screenH * 0.98), paint);
+            canvas.drawText("Total Coins: "+Assets.decrypt(MainActivity.preferences.getString(Assets.encrypt("TotalCoins"),Assets.encrypt("0"))), (float) (getScreenW() / 2), (float) (screenH * 0.98), paint);
         } else if (gamePaused) {
             canvas.drawARGB(255, 0, 0, 50);
             canvas.drawPoints(genStars, paint);
             canvas.drawText("GAME PAUSED", screenW / 2, (float) (screenH * 0.2), whitePaint);
-            canvas.drawText("Coins: " + coins, (float) (getScreenW() / 3), (float) (screenH * 0.99), paint);
+            canvas.drawText("Coins: " + coins, (float) (getScreenW() / 3), (float) (screenH * 0.98), paint);
             canvas.drawText("Score: " + MainActivity.score, (float) (screenW * 0.06), (float) (screenH * 0.08), paint);
-            canvas.drawText("HighScore: " + MainActivity.preferences.getInt("prevHighScore", 0), 20, (int) (screenH * 0.99), paint);
-            canvas.drawText("Clip: " + gunclip, (float) (getScreenW() / 2), (float) (screenH * 0.99), paint);
+            canvas.drawText("HighScore: " + MainActivity.preferences.getInt("prevHighScore", 0), 20, (int) (screenH * 0.98), paint);
+            canvas.drawText("Clip: " + gunclip, (float) (getScreenW() / 2), (float) (screenH * 0.98), paint);
             canvas.drawText("Coins and progress will be lost if you quit to main menu",screenW/2,(float)(screenH*0.7),whitePaintMedium);
             /*
             canvas.drawRect((float)((screenW/2f)-(resumeBounds.width()/2f)),(float)((screenH*0.48)-(resumeBounds.height())),
@@ -584,8 +589,8 @@ public class GameView extends View {
                     (float)((screenW/2f)-(quitBounds.width()/2f)+(quitBounds.width())),(float)((screenH*0.61)),
                     redPaint);
             */
-            canvas.drawText(resume, (float) (screenW / 2f), (float) (screenH * 0.48), tp);
-            canvas.drawText(quit, (float) (screenW / 2f), (float) (screenH * 0.62), tp);
+            canvas.drawText("Resume", (float) (screenW / 2f), (float) (screenH * 0.48), tp);
+            canvas.drawText("Quit to Main Menu", (float) (screenW / 2f), (float) (screenH * 0.62), tp);
             //canvas.drawRect(200,200,200+resumeBounds.width(),200+resumeBounds.height(),redPaint);
             //canvas.drawText("Resume Game",200,200,tp);
             //canvas.drawBitmap(Assets.right,(float)((screenW/2)-(Assets.right.getWidth()/2)),(float)(screenH*0.4),null);
@@ -642,10 +647,10 @@ public class GameView extends View {
                 if (p.getR().intersect(e.getEnemyRect())) {
                     p.setVisible(false);
                     e.setVisible(false);
-                    mi = 0;
+                    blastAnimation.animate();
                     globalx = e.geteX();
                     globaly = e.geteY();
-                    Assets.sp.play(Assets.invaderExplode, 0.017f, 0.017f, 1, 0, 1);
+                    Assets.sp.play(Assets.invaderExplode, currentSoundVolume, currentSoundVolume, 1, 0, 1);
                     MainActivity.score += 7;
                 }
             }
@@ -671,21 +676,20 @@ public class GameView extends View {
         }
         return false;
     }
-    public void checkPlayerCollision() {//checks if enemies collide with player
+    public void checkPlayerEnemyCollision(){//checks if enemies collide with player
         for (Enemy w : enemy.getEnemies()) {
             if (w.getEnemyRect().intersect(player.getPlayerRect())) {
                 w.setVisible(false);
-                mi = 0;
+                blastAnimation.animate();
                 globalx = w.geteX();
                 globaly = w.geteY();
-                Assets.sp.play(Assets.invaderExplode, 0.017f, 0.017f, 1, 0, 1);
+                Assets.sp.play(Assets.invaderExplode,currentSoundVolume, currentSoundVolume, 1, 0, 1);
                 if (wi != 0) {
                     wi -= 25 * scale;
                 }
                 if (wi < 0) {
                     wi = 0;
                 }
-                //l -= 1;
             }
         }
     }
@@ -767,15 +771,11 @@ public class GameView extends View {
                 if (tp.getR().intersect(e.getEnemyRect())) {
                     tp.setVisible(false);
                     e.setVisible(false);
-                    mi = 0;
-                    Assets.sp.play(Assets.invaderExplode, 0.017f, 0.017f, 1, 0, 1);
+                    blastAnimation.animate();
+                    Assets.sp.play(Assets.invaderExplode, currentSoundVolume, currentSoundVolume, 1, 0, 1);
                     MainActivity.score += 2;
                 }
             }
-    }
-    public void doOneExplosion(Canvas c, int x, int y, long updateTime) {
-        anim.update(updateTime);
-        c.drawBitmap(anim.getImage(), x, y, null);
     }
     public void checkTurretCollision() {
         for (Enemy e : enemy.getEnemies()) {
@@ -945,6 +945,21 @@ public class GameView extends View {
             //moveUp = x[0] < screenW / 2 && y[0] < screenH / 2;
         } */
     }
+    public void pause(){
+        gameRunning = false;
+        gamePaused = true;
+    }
+    public void resume(){
+        gamePaused = false;
+        gameRunning = true;
+    }
+    public void quit(){
+        Intent intent = new Intent(getContext(),TitleActivity.class);
+        getContext().startActivity(intent);
+        finishAct();
+        gameRunning = false;
+        gamePaused = false;
+    }
     public void justSomeExperimentalCode(){   /*
     @Override
     public boolean onTouchEvent(MotionEvent event){
@@ -1070,31 +1085,24 @@ public class GameView extends View {
             case MotionEvent.ACTION_UP:
                 if (gameRunning && bringCoin && X > genCoinX && X< genCoinX+Assets.coin.getWidth() && Y > genCoinY && Y < genCoinY+Assets.coin.getHeight()){
                     coins += 1;
-                    Assets.sp.play(Assets.coinPickup,0.2f,0.2f,1,0,1);
+                    Assets.sp.play(Assets.coinPickup,currentMusicVolume,currentMusicVolume,1,0,1);
                     bringCoin = false;
                 }
 
-                if ((X>0) && (X < 125) && (Y > 0) && (Y < 130) && (gameRunning)){
-                    gameRunning = false;
-                    gamePaused = true;
-                    gameEnded = false;
+                if ((X>0) && (X < 125) && (Y > 0) && (Y < 130) && (gameRunning)){ //checking if pause button was pressed
+                    pause();
                 }
 
                 if (resumeRect.contains((int)X,(int)Y) && !gameRunning && gamePaused){
-                    gamePaused = false;
-                    gameRunning = true;
+                    resume();
                 }
 
                 if (quitRect.contains((int)X,(int)Y) && !gameRunning && gamePaused){
-                    Intent intent = new Intent(getContext(),TitleActivity.class);
-                    getContext().startActivity(intent);
-                    finishAct();
-                    gameRunning = false;
-                    gamePaused = false;
+                    quit();
                 }
 
                 if (gameEnded && playRect.contains((int)X,(int)Y)){
-                    //EXPERIMENTAL CODE TO RESTART THIS ACTIVITY
+                    //EXPERIMENTAL CODE TO RESTART THIS ACTIVITY: The play again button
                     gameEnded = false;
                     init();
                     pepeboss.init();
@@ -1107,11 +1115,7 @@ public class GameView extends View {
                     gameRunning = true;
                 }
                 if (gameEnded && quitRect.contains((int)X,(int)Y)){
-                    Intent intent = new Intent(getContext(),TitleActivity.class);
-                    getContext().startActivity(intent);
-                    finishAct();
-                    gameRunning = false;
-                    gamePaused = false;
+                    quit();
                 }
                 if (gameRunning) {
                     moveDown = false;
@@ -1123,7 +1127,7 @@ public class GameView extends View {
                 if (event.getActionIndex() > 0 && gameRunning){
                     if(gameRunning && bringCoin && event.getX(1) > genCoinX && event.getX(1)< genCoinX+Assets.coin.getWidth() && event.getY(1) > genCoinY && event.getY(1) < genCoinY+Assets.coin.getHeight()){
                         coins += 1;
-                        Assets.sp.play(Assets.coinPickup,0.2f,0.2f,1,0,1);
+                        Assets.sp.play(Assets.coinPickup,currentMusicVolume,currentMusicVolume,1,0,1);
                         bringCoin = false;
                     }
                 }
@@ -1227,6 +1231,21 @@ public class GameView extends View {
     public static void setBringBoss(boolean bringBoss) {GameView.bringBoss = bringBoss;}
     public static boolean isBringBoss2() {return bringBoss2;}
     public static void setBringBoss2(boolean bringBoss2) {GameView.bringBoss2 = bringBoss2;}
+    private RectF stringRect(String string,float stringX,float stringY, TextPaint textPaint,Paint paint ,boolean centerAlignment){
+        Rect stringBounds = new Rect();
+        if(textPaint != null && paint == null) {
+            textPaint.getTextBounds(string, 0, string.length(), stringBounds);
+        }else if(paint != null && textPaint == null){
+            paint.getTextBounds(string,0,string.length(),stringBounds);
+        }
+        RectF stringRect = new RectF();
+        if(centerAlignment){
+            stringRect.set((stringX)-(stringBounds.width() / 2f), stringY - stringBounds.height(),(stringX-(stringBounds.width()/2f))+(stringBounds.width()),stringY );
+        }else{
+            stringRect.set(stringX,stringY-stringBounds.height(),stringX+stringBounds.width(),stringY);
+        }
+        return stringRect;
+    }
 
     //public int getScreenW() {return screenW;}
     //public void setScreenW(int screenW) {this.screenW = screenW;}
@@ -1251,28 +1270,6 @@ public class GameView extends View {
         boss_wi=244*scale;
         boss_he=5*scale;
         starSpeed = 6;
-        paint = new Paint();
-        bulletPaint = new Paint();
-        redPaint = new Paint();
-        bluePaint = new Paint();
-        greenPaint = new Paint();
-        yellowPaint = new Paint();
-        whitePaint = new Paint();
-        bulletPaint.setColor(Color.YELLOW);
-        paint.setColor(Color.WHITE);
-        paint.setTextSize((float)(23.4*(scale/1.5)));
-        paint.setStrokeWidth(scale);
-        redPaint.setColor(Color.RED);
-        bluePaint.setColor(Color.BLUE);
-        greenPaint.setColor(Color.GREEN);
-        yellowPaint.setColor(Color.YELLOW);
-        whitePaint.setColor(Color.WHITE);
-        whitePaint.setTextSize((float)(70*(scale/1.5)));
-        whitePaint.setTextAlign(Paint.Align.CENTER);
-        pepeBulletPaint = new Paint();
-        pepeBulletPaint.setColor(Color.RED);
-        bossBulletPaint = new Paint();
-        bossBulletPaint.setColor(Color.BLUE);
         player = new Boltship();
         enemy = new Enemy(0,0);
         densityDpi = getContext().getResources().getDisplayMetrics().densityDpi;

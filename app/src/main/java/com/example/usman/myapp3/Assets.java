@@ -13,10 +13,11 @@ import android.util.Base64;
 
 public class Assets {
 
-    public static Bitmap boltShip,bossShip,bossShip2,bossShip3,pepeBoss,turret,coin,enemy1,enemy2,enemy3,enemy4,enemy5,turretButton,
+    protected static Bitmap boltShip,bossShip,bossShip2,bossShip3,pepeBoss,turret,coin,enemy1,enemy2,enemy3,enemy4,enemy5,turretButton,
     explosion1,explosion2,explosion3,explosion4,explosion5,explosion6,explosion7,explosion8,explosion9,explosion10,explosion11,
-            explosion12,pepeHurt,healthBar,pepeHealthBar,bossHealthBar,tempPepe,enShip,shield,shieldButton,playButton,title,creditsButton,
-            highscoresButton,optionsButton,storeButton,newTitle,right,pause,logo,soundOn,soundOff;
+            explosion12,pepeHurt,healthBar,pepeHealthBar,bossHealthBar,tempPepe,enShip,shield,shieldButton,title,
+            newTitle,right,pause,logo,soundOn,soundOff,saber1,saber2,saber3,saber4,saber5,
+            saber6,saber7,saber8,slider,sliderbolt,blackLogo;
     public static Typeface tf,tf1;
     //public static Bitmap [] asteroids = new Bitmap[60];
     public static int playerShoot,invaderExplode,coinPickup,playerShoot2;
@@ -47,7 +48,10 @@ public class Assets {
     }
 
     protected static void loadBitmaps(Resources res){
+        slider = BitmapFactory.decodeResource(res,R.drawable.slider);
+        sliderbolt = BitmapFactory.decodeResource(res,R.drawable.sliderbolt);
         logo = BitmapFactory.decodeResource(res,R.drawable.logo_white_small);
+        blackLogo = BitmapFactory.decodeResource(res,R.drawable.logo_black_small);
         boltShip = BitmapFactory.decodeResource(res,R.drawable.player3);
         bossShip = BitmapFactory.decodeResource(res,R.drawable.bossship);
         bossShip2 = BitmapFactory.decodeResource(res,R.drawable.bossship2);
@@ -79,12 +83,15 @@ public class Assets {
         explosion10 = BitmapFactory.decodeResource(res,R.drawable.explosion10);
         explosion11 = BitmapFactory.decodeResource(res,R.drawable.explosion11);
         explosion12 = BitmapFactory.decodeResource(res,R.drawable.explosion12);
-        playButton = BitmapFactory.decodeResource(res,R.drawable.play_button);
-        highscoresButton = BitmapFactory.decodeResource(res,R.drawable.highscores_button);
-        creditsButton = BitmapFactory.decodeResource(res,R.drawable.credits_button);
-        optionsButton = BitmapFactory.decodeResource(res,R.drawable.options_button);
+        saber1 = BitmapFactory.decodeResource(res,R.drawable.saber1);
+        saber2 = BitmapFactory.decodeResource(res,R.drawable.saber2);
+        saber3 = BitmapFactory.decodeResource(res,R.drawable.saber3);
+        saber4 = BitmapFactory.decodeResource(res,R.drawable.saber4);
+        saber5 = BitmapFactory.decodeResource(res,R.drawable.saber5);
+        saber6 = BitmapFactory.decodeResource(res,R.drawable.saber6);
+        saber7 = BitmapFactory.decodeResource(res,R.drawable.saber7);
+        saber8 = BitmapFactory.decodeResource(res,R.drawable.saber8);
         newTitle = BitmapFactory.decodeResource(res,R.drawable.title_new);
-        storeButton = BitmapFactory.decodeResource(res,R.drawable.store_button);
         //title = BitmapFactory.decodeResource(res,R.drawable.title);
         right = BitmapFactory.decodeResource(res,R.drawable.right);
         pause = BitmapFactory.decodeResource(res,R.drawable.pause2);
@@ -93,7 +100,7 @@ public class Assets {
         tempPepe = pepeBoss;
     }
 
-    public static void loadSounds(Context context){
+    protected static void loadSounds(Context context){
         sp = new SoundPool(5, AudioManager.STREAM_MUSIC,0);
         mp = new MediaPlayer();
         mp = MediaPlayer.create(context,R.raw.background_music);
@@ -101,6 +108,9 @@ public class Assets {
         playerShoot = sp.load(context,R.raw.playershoot,2);
         coinPickup = sp.load(context,R.raw.coinpickup,3);
         playerShoot2 = sp.load(context,R.raw.playershoot2,4);
+    }
+    protected static float manageVolume(float volumeSliderValue){
+        return (float)(1-(Math.log(TitleActivity.TOTAL_NUMBER_OF_STEPS-volumeSliderValue)/Math.log(TitleActivity.TOTAL_NUMBER_OF_STEPS)));
     }
 
     public static Bitmap getEnShip() {

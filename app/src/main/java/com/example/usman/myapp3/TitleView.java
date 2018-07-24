@@ -6,17 +6,23 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.text.TextPaint;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.Toast;
 
 import java.util.Random;
 
+import static com.example.usman.myapp3.TitleActivity.sH;
+import static com.example.usman.myapp3.TitleActivity.sW;
+
 public class TitleView extends View {
     Context myContext;
-    static int viewIndex = 0, sound = 1;
+    static int viewIndex = 0;
+    public static boolean sound = true;
     private int titleclick =0;
     private static int screenW, screenH;
     static float scale;
@@ -26,25 +32,30 @@ public class TitleView extends View {
     public static void setBringTurret(boolean bringTurret) {
         TitleView.bringTurret = bringTurret;
     }
-    private Random generator;
     public static float SCALE_CONST;
     String title="BOLT CHRONICLES",play = "PLAY", options="OPTIONS",store="STORE",credits="CREDITS";
+    private Random generator;
     int no_of_stars= 230;
     float [] genStars;
     int a=0;
     int b=1;
     int c=0;
     public static boolean bringTurret = false;
-    Paint paint;
+    Paint paint, rectPaint;
     TextPaint buttonPaint,titlePaint;
     Intent intent;
     Intent myintent;
-
+    private Rect rect;
+    private RectF playRect,optionsRect,storeRect,creditsRect;
     public TitleView(Context context) {
         super(context);
+        rectPaint = new Paint();
+        rectPaint.setColor(Color.BLACK);
+        rectPaint.setStyle(Paint.Style.FILL);
+        rect = new Rect(150,150,300,300);
         //vs = new ViewSwitcher(context);
-        screenW = TitleActivity.sW;
-        screenH = TitleActivity.sH;
+        screenW = sW;
+        screenH = sH;
         scale = context.getResources().getDisplayMetrics().density;
         SCALE_CONST = (scale/1.5f);
         myContext = context;
@@ -53,16 +64,24 @@ public class TitleView extends View {
         buttonPaint = new TextPaint();
         titlePaint = new TextPaint();
         myintent = new Intent(context,ButtonActivity.class);
-        paint.setTextSize((float)(24*(scale/1.5)));
+        paint.setTextSize((24*SCALE_CONST));
         paint.setColor(Color.WHITE);
         paint.setStrokeWidth(scale);
-        buttonPaint.setTypeface(Assets.tf1);
-        buttonPaint.setTextSize(70*SCALE_CONST);
-        buttonPaint.setColor(Color.RED);
+        playRect = new RectF();
+        optionsRect = new RectF();
+        storeRect = new RectF();
+        creditsRect = new RectF();
+        buttonPaint.setTypeface(Assets.tf);
+        buttonPaint.setTextSize(65*SCALE_CONST);
+        buttonPaint.setColor(Color.rgb(202,255,244));
         buttonPaint.setTextAlign(Paint.Align.CENTER);
+        playRect = stringRect("PLAY",sW*0.5f,sH*0.33f,buttonPaint,null,true);
+        optionsRect = stringRect("OPTIONS",sW*0.5f,sH*0.47f,buttonPaint,null,true);
+        storeRect = stringRect("STORE",sW*0.5f,sH*0.61f,buttonPaint,null,true);
+        creditsRect = stringRect("CREDITS",sW*0.5f,sH*0.75f,buttonPaint,null,true);
         titlePaint.setTypeface(Assets.tf);
-        titlePaint.setTextSize(70*SCALE_CONST);
-        titlePaint.setColor(Color.RED);
+        titlePaint.setTextSize(72*SCALE_CONST);
+        titlePaint.setColor(Color.rgb(202,255,244));
         titlePaint.setTextAlign(Paint.Align.CENTER);
         generator = new Random();
         genStars= new float[no_of_stars*2];//Star Co-Ordinates
@@ -75,6 +94,7 @@ public class TitleView extends View {
             b += 2;
         }
     }
+
 
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
@@ -90,17 +110,22 @@ public class TitleView extends View {
 
         //canvas.drawText("Right side = new features testing,    Left side = normal game.",30,50,paint);
         //canvas.drawText("tap on either the left side or right side of the screen",30,90,paint);
-        canvas.drawText(title,(float)(screenW*0.5),(float)(screenH*0.12),titlePaint);
+        canvas.drawText(title,(float)(screenW*0.5),(float)(screenH*0.13),titlePaint);
         //canvas.drawBitmap(Assets.newTitle,(float)((screenW/2)-(Assets.newTitle.getWidth()/2)),(float)(screenH*0.06),null);
-        canvas.drawBitmap(Assets.playButton,(float)((screenW/2)-(Assets.playButton.getWidth()/2)),(float)(screenH*0.26),null);
-        canvas.drawBitmap(Assets.optionsButton,(float)((screenW/2)-(Assets.optionsButton.getWidth()/2)),(float)(screenH*0.40),null);
-        canvas.drawBitmap(Assets.storeButton,(float)((screenW/2)-(Assets.storeButton.getWidth()/2)),(float)(screenH*0.54),null);
+        //canvas.drawBitmap(Assets.playButton,(float)((screenW/2)-(Assets.playButton.getWidth()/2)),(float)(screenH*0.26),null);
+        //canvas.drawBitmap(Assets.optionsButton,(float)((screenW/2)-(Assets.optionsButton.getWidth()/2)),(float)(screenH*0.40),null);
+        //canvas.drawBitmap(Assets.storeButton,(float)((screenW/2)-(Assets.storeButton.getWidth()/2)),(float)(screenH*0.54),null);
+        canvas.drawRect(rect,rectPaint);
+        canvas.drawText("PLAY",sW*0.5f,sH*0.33f,buttonPaint);
+        canvas.drawText("OPTIONS",sW*0.5f,sH*0.47f,buttonPaint);
+        canvas.drawText("STORE",sW*0.5f,sH*0.61f,buttonPaint);
+        canvas.drawText("CREDITS",sW*0.5f,sH*0.75f,buttonPaint);
         //canvas.drawBitmap(Assets.highscoresButton,(float)((screenW/2)-(Assets.highscoresButton.getWidth()/2)),(float)(screenH*0.68),null);
-        canvas.drawBitmap(Assets.creditsButton,(float)((screenW/2)-(Assets.creditsButton.getWidth()/2)),(float)(screenH*0.68),null);
-        if (sound==1){
-            canvas.drawBitmap(Assets.soundOn,(float)(screenW*0.93),(float)(screenH*0.06),null);
-        }else if(sound==0){
-            canvas.drawBitmap(Assets.soundOff,(float)(screenW*0.93),(float)(screenH*0.06),null);
+        //canvas.drawBitmap(Assets.creditsButton,(float)((screenW/2)-(Assets.creditsButton.getWidth()/2)),(float)(screenH*0.68),null);
+        if (sound){
+            //canvas.drawBitmap(Assets.soundOn,(float)(screenW*0.93),(float)(screenH*0.06),null);
+        }else{
+            //canvas.drawBitmap(Assets.soundOff,(float)(screenW*0.93),(float)(screenH*0.06),null);
         }
         //canvas.drawText("current View: "+TitleActivity.currentView,100,150,paint);
         //canvas.drawCircle(12,12,12,blue);
@@ -115,6 +140,9 @@ public class TitleView extends View {
         moveStars();
         //repeat the stars
         repeatStars();
+        if (!isFocused()){
+            Assets.mp.pause();
+        }
         invalidate();
         //canvas.drawBitmap(TitleActivity.getScaledTurret(),400,150,null);
     }
@@ -127,39 +155,35 @@ public class TitleView extends View {
             case MotionEvent.ACTION_DOWN:
                 break;
             case MotionEvent.ACTION_UP:
-                if(withinPlayButtonBounds(X,Y)){
-                    //do nothing
-                }
-                if(bitmapToRect(Assets.playButton,((screenW/2)-(Assets.playButton.getWidth()/2)),(screenH*0.26f)).contains(X,Y)){
+                if(playRect.contains(X,Y)){
+                    Assets.mp.stop();
                     intent = new Intent(getContext(), MainActivity.class);
                     getContext().startActivity(intent);
                     finishAct();
                 }
-                if(withinCreditsButtonBound(X,Y)){
-                    viewIndex = 2;
-                    getContext().startActivity(myintent);
-                }
-                if(withinOptionButtonBound(X,Y)){
+                if(optionsRect.contains(X,Y)){
                     viewIndex = 1;
                     getContext().startActivity(myintent);
                 }
-                if(withinStoreButtonBound(X,Y)){
+                if(storeRect.contains(X,Y)){
                     viewIndex = 0;
                     getContext().startActivity(myintent);
                 }
-                /*
-                if(withinHighscoresButtonBound(X,Y)){
+                if(creditsRect.contains(X,Y)){
+                    viewIndex = 2;
+                    getContext().startActivity(myintent);
+                }
+                if(rect.contains(X,Y)){
                     viewIndex = 3;
                     getContext().startActivity(myintent);
                 }
-                */
                 if(withinButtonBounds(X,Y,Assets.soundOn,(float)(screenW*0.93),(float)(screenH*0.06))){
-                    if(sound==1){
-                        sound=0;
+                    if(sound){
+                        sound=false;
                         Assets.mp.setVolume(0f,0f);
-                    }else if(sound==0){
-                        sound=1;
-                        Assets.mp.setVolume(1f,1f);
+                    }else{
+                        sound=true;
+                        Assets.mp.setVolume(TitleActivity.currentMusicVolume,TitleActivity.currentMusicVolume);
                     }
                 }
                 break;
@@ -171,7 +195,6 @@ public class TitleView extends View {
     public void finishAct(){
         ((TitleActivity)getContext()).finish();
     }
-
     public void moveStars(){
         for(int i=0;i<no_of_stars*2;i++) {
                 genStars[c] -= 7*(scale/1.5);
@@ -198,6 +221,26 @@ public class TitleView extends View {
         }
         return false;
     }
+    private RectF stringRect(String string,float stringX,float stringY, TextPaint textPaint,Paint paint ,boolean centerAlignment){
+        Rect stringBounds = new Rect();
+        if(textPaint != null && paint == null) {
+            textPaint.getTextBounds(string, 0, string.length(), stringBounds);
+        }else if(paint != null && textPaint == null){
+            paint.getTextBounds(string,0,string.length(),stringBounds);
+        }
+        RectF stringRect = new RectF();
+        if(centerAlignment){
+            stringRect.set((stringX)-(stringBounds.width() / 2f), stringY - stringBounds.height(),(stringX-(stringBounds.width()/2f))+(stringBounds.width()),stringY );
+        }else{
+            stringRect.set(stringX,stringY-stringBounds.height(),stringX+stringBounds.width(),stringY);
+        }
+        return stringRect;
+    }
+}
+
+
+
+/*
     public boolean withinPlayButtonBounds(int X, int Y){
         if(X>((screenW/2)-(Assets.playButton.getWidth()/2)) && X<(((screenW/2)-(Assets.playButton.getWidth()/2))+Assets.playButton.getWidth())
                  && Y>(screenH*0.26) && Y<((screenH*0.26)+(Assets.playButton.getHeight()))){
@@ -238,25 +281,28 @@ public class TitleView extends View {
         outRect.set(bitmapStartX,bitmapStartY,bitmapStartX+bitmap.getWidth(),bitmapStartY+bitmap.getHeight());
         return outRect;
     }
-
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    */
+/*
+                if(bitmapToRect(Assets.playButton,((screenW/2)-(Assets.playButton.getWidth()/2)),(screenH*0.26f)).contains(X,Y)){
+                    intent = new Intent(getContext(), MainActivity.class);
+                    getContext().startActivity(intent);
+                    finishAct();
+                }
+                if(withinCreditsButtonBound(X,Y)){
+                    viewIndex = 2;
+                    getContext().startActivity(myintent);
+                }
+                if(withinOptionButtonBound(X,Y)){
+                    viewIndex = 1;
+                    getContext().startActivity(myintent);
+                }
+                if(withinStoreButtonBound(X,Y)){
+                    viewIndex = 0;
+                    getContext().startActivity(myintent);
+                }
+                /*
+                if(withinHighscoresButtonBound(X,Y)){
+                    viewIndex = 3;
+                    getContext().startActivity(myintent);
+                }
+                */

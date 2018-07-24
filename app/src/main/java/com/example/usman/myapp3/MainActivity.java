@@ -9,10 +9,13 @@ import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.view.Display;
+import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.Toast;
 
 public class MainActivity extends Activity {
+    GameView mView;
     private static int sX;
     public static int getsX() {
         return sX;
@@ -58,7 +61,7 @@ public class MainActivity extends Activity {
         sX = size.x;
         sY = size.y;
         super.onCreate(savedInstanceState);
-        GameView mView = new GameView(this);
+        mView = new GameView(this);
         mView.setKeepScreenOn(true);
         preferences = PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor editor = preferences.edit();
@@ -69,6 +72,10 @@ public class MainActivity extends Activity {
         // Get a Display object to access screen details
         //set the screen orientation to Landscape
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
+        mView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_LOW_PROFILE);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            mView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_IMMERSIVE);
+        }
         //tell the system to hide the app title
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         //to tell the system to make our app full screen
@@ -80,6 +87,7 @@ public class MainActivity extends Activity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        Toast.makeText(this,"MainActivity onDestroy() called",Toast.LENGTH_LONG).show();
         preferences = PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor editor = preferences.edit();
         editor.putInt("prevHighScore",getHighScore());
@@ -88,6 +96,7 @@ public class MainActivity extends Activity {
 
     @Override
     protected void onStop() {
+        Toast.makeText(this,"MainActivity onStop() called",Toast.LENGTH_LONG).show();
         super.onStop();
         preferences = PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor editor = preferences.edit();
@@ -98,7 +107,11 @@ public class MainActivity extends Activity {
 
     @Override
     public void onBackPressed(){
-        //do nothing
+        if(OptionsView.backButtonPause){
+            mView.pause();
+        }else{
+            //do nothing
+        }
     }
 
 }

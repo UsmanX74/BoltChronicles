@@ -4,7 +4,7 @@ import android.graphics.Rect;
 import java.util.ArrayList;
 import static com.example.usman.myapp3.TitleView.scale;
 
-abstract class Bosses {
+public abstract class Bosses {
     int x;
     int y;
     public Rect getR() {

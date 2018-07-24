@@ -35,7 +35,7 @@ public class Boltship {
         Projectiles p = new Projectiles(Assets.boltShip.getWidth()-3,(bY + (int)(Assets.boltShip.getHeight()*0.74)));
         projectiles.add(p);
         //volume should be between 0.01-0.04
-        Assets.sp.play(Assets.playerShoot2,0.04f,0.04f,1,0,1);
+        Assets.sp.play(Assets.playerShoot2,TitleActivity.currentSoundVolume,TitleActivity.currentSoundVolume,1,0,1);
    }
 
     public void update(){

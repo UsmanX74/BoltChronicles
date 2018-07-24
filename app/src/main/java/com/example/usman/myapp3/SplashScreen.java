@@ -19,10 +19,13 @@ public class SplashScreen extends AppCompatActivity{
             decorView.setSystemUiVisibility(uiOptions);
         setContentView(R.layout.activity_splash_screen);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
-        int SPLASH_TIME_OUT = 1950;
+        int SPLASH_TIME_OUT = 1800;
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
+                Assets.loadBitmaps(getResources());
+                Assets.loadFonts(getApplicationContext());
+                Assets.loadSounds(getApplicationContext());
                 Intent i = new Intent(SplashScreen.this, TitleActivity.class);
                 startActivity(i);
                 finish();
