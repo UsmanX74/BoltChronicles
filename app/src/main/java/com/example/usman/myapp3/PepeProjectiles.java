@@ -23,7 +23,7 @@ public class PepeProjectiles {
         this.visible = visible;
     }
 
-    private Rect r = new Rect();
+    private Rect r;
     private boolean visible;
     private int rectWidth = (int)(23*scale),rectHeight = (int)(7*scale);
 

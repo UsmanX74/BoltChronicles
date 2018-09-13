@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.graphics.BlurMaskFilter;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -12,6 +13,7 @@ import android.graphics.RectF;
 import android.preference.PreferenceManager;
 import android.text.TextPaint;
 import android.util.Base64;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Toast;
@@ -52,6 +54,8 @@ public class GameView extends View {
     public static boolean gameEnded = false, gamePaused = false, gameRunning = false;
     private static Boltship player;
     private Enemy enemy;
+    Paint glowPaint;
+    BlurMaskFilter blurMaskFilter,bmf2;
     private static boolean bringPepe;
     private static boolean bringBoss;
     private static boolean bringBoss2;
@@ -98,6 +102,7 @@ public class GameView extends View {
 
     public GameView(final Context context) {
         super(context);
+        glowPaint = new Paint();
         MainActivity.preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
         editor = MainActivity.preferences.edit();
         x = new int[max_pointers];
@@ -239,6 +244,8 @@ public class GameView extends View {
         blastAnimation.addFrame(Assets.explosion11);
         blastAnimation.addFrame(Assets.explosion12);
         gameRunning = true;
+        setLayerType(LAYER_TYPE_HARDWARE,null);
+        BlurMaskFilter bl;
     }
 
 
@@ -259,8 +266,11 @@ public class GameView extends View {
         if (gameRunning) {
             startTime = System.currentTimeMillis();
             //resetHighscore();
+            //setLayerType(LAYER_TYPE_SOFTWARE,redPaint);
             //draw background color
+            //Log.d("hardwareACCEL","hardware accelerated: "+getRootView().isHardwareAccelerated());
             canvas.drawARGB(255, 0, 0, 40);
+            drawLineAsNeon(canvas,200,50,200,700,Color.RED,glowPaint,10,40);
             //draw the stars
             canvas.drawPoints(genStars, paint);
             //move the stars
@@ -823,10 +833,7 @@ public class GameView extends View {
         }
     }
     public boolean angry() {//checks if pepe is angry
-        if (pepeboss.health < 30) {
-            return true;
-        }
-        return false;
+        return (pepeboss.health < 30);
     }
     public void checkPepeTime() {//checks if it is time to bring pepe
         if (MainActivity.score > 150 && pepeboss.health != 0) {
@@ -955,11 +962,13 @@ public class GameView extends View {
     }
     public void quit(){
         Intent intent = new Intent(getContext(),TitleActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         getContext().startActivity(intent);
         finishAct();
         gameRunning = false;
         gamePaused = false;
     }
+
     public void justSomeExperimentalCode(){   /*
     @Override
     public boolean onTouchEvent(MotionEvent event){
@@ -1033,6 +1042,11 @@ public class GameView extends View {
         String passEncrypted = preferences.getString(encrypt("password"), encrypt("default"));
         String pass = decrypt(passEncrypted);*/
     }
+
+
+
+
+
 
     @Override
     public boolean onTouchEvent(MotionEvent event){
@@ -1292,4 +1306,21 @@ public class GameView extends View {
         s = new Projectiles(0,0);
         enemyTimer = new Timer();
     }
+    void drawLineAsNeon(Canvas canvas, float x1,float y1, float x2, float y2, int Color,Paint paint, int tubeWidth, int glowWidth){
+        paint.setAntiAlias(true);
+        paint.setColor(Color);
+        paint.setStrokeCap(Paint.Cap.ROUND);
+        paint.setStrokeWidth(glowWidth);
+        blurMaskFilter = new BlurMaskFilter(glowWidth,BlurMaskFilter.Blur.NORMAL);
+        paint.setMaskFilter(blurMaskFilter);
+        paint.setAlpha(255);
+        canvas.drawLine(x1,y1,x2,y2,paint);
+
+        paint.setAlpha(255);
+        paint.setStrokeWidth(tubeWidth);
+        bmf2 = new BlurMaskFilter(tubeWidth, BlurMaskFilter.Blur.SOLID);
+        paint.setMaskFilter(bmf2);
+        canvas.drawLine(x1,y1,x2,y2,paint);
+    }
+
 }

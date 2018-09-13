@@ -23,7 +23,6 @@ public class TitleView extends View {
     Context myContext;
     static int viewIndex = 0;
     public static boolean sound = true;
-    private int titleclick =0;
     private static int screenW, screenH;
     static float scale;
     public static boolean isBringTurret() {
@@ -122,11 +121,6 @@ public class TitleView extends View {
         canvas.drawText("CREDITS",sW*0.5f,sH*0.75f,buttonPaint);
         //canvas.drawBitmap(Assets.highscoresButton,(float)((screenW/2)-(Assets.highscoresButton.getWidth()/2)),(float)(screenH*0.68),null);
         //canvas.drawBitmap(Assets.creditsButton,(float)((screenW/2)-(Assets.creditsButton.getWidth()/2)),(float)(screenH*0.68),null);
-        if (sound){
-            //canvas.drawBitmap(Assets.soundOn,(float)(screenW*0.93),(float)(screenH*0.06),null);
-        }else{
-            //canvas.drawBitmap(Assets.soundOff,(float)(screenW*0.93),(float)(screenH*0.06),null);
-        }
         //canvas.drawText("current View: "+TitleActivity.currentView,100,150,paint);
         //canvas.drawCircle(12,12,12,blue);
         //canvas.drawBitmap(Assets.title,(float)((screenW/2)-Assets.title.getWidth()/2),(float)(screenH*0.1),null);
@@ -140,9 +134,6 @@ public class TitleView extends View {
         moveStars();
         //repeat the stars
         repeatStars();
-        if (!isFocused()){
-            Assets.mp.pause();
-        }
         invalidate();
         //canvas.drawBitmap(TitleActivity.getScaledTurret(),400,150,null);
     }
@@ -156,35 +147,34 @@ public class TitleView extends View {
                 break;
             case MotionEvent.ACTION_UP:
                 if(playRect.contains(X,Y)){
-                    Assets.mp.stop();
                     intent = new Intent(getContext(), MainActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                     getContext().startActivity(intent);
                     finishAct();
                 }
                 if(optionsRect.contains(X,Y)){
                     viewIndex = 1;
+                    Assets.counter=1;
+                    myintent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                     getContext().startActivity(myintent);
                 }
                 if(storeRect.contains(X,Y)){
                     viewIndex = 0;
+                    Assets.counter=1;
+                    myintent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                     getContext().startActivity(myintent);
                 }
                 if(creditsRect.contains(X,Y)){
                     viewIndex = 2;
+                    Assets.counter=1;
+                    myintent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                     getContext().startActivity(myintent);
                 }
                 if(rect.contains(X,Y)){
                     viewIndex = 3;
+                    Assets.counter=1;
+                    myintent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                     getContext().startActivity(myintent);
-                }
-                if(withinButtonBounds(X,Y,Assets.soundOn,(float)(screenW*0.93),(float)(screenH*0.06))){
-                    if(sound){
-                        sound=false;
-                        Assets.mp.setVolume(0f,0f);
-                    }else{
-                        sound=true;
-                        Assets.mp.setVolume(TitleActivity.currentMusicVolume,TitleActivity.currentMusicVolume);
-                    }
                 }
                 break;
         }

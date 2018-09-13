@@ -7,7 +7,7 @@ import java.util.ArrayList;
 public class FramesAnimation {
 
     int totalFrames;
-    int currentFrameIndex;
+
     private boolean movement;
     private long frameDurationInMilliS;
     private long lastFrameChangeTime;
@@ -33,8 +33,8 @@ public class FramesAnimation {
         if(!movement){
             if(!firstTime){
                 if(animationCounter < (this.animationCycles*totalFrames)) {
-                canvas.drawBitmap(frames.get(currentFrameIndex), x, y, null);
-                manageFrames();
+                    canvas.drawBitmap(frames.get(animationCounter%totalFrames), x, y, null);
+                    manageFrames();
                 }
             }
         }
@@ -42,18 +42,13 @@ public class FramesAnimation {
     public void animate(){
         firstTime = false;
         animationCounter = 0;
-        currentFrameIndex = 0;
     }
 
     private void manageFrames() {
         long time = System.currentTimeMillis();
             if (time > lastFrameChangeTime + frameDurationInMilliS) {
                 lastFrameChangeTime = time;
-                currentFrameIndex++;
                 animationCounter++;
-                if (currentFrameIndex >= totalFrames) {
-                    currentFrameIndex = 0;
-                }
             }
 
     }

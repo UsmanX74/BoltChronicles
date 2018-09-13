@@ -25,7 +25,7 @@ import static com.example.usman.myapp3.TitleView.scale;
 
 public class OptionsView extends View{
     private TextPaint tp, tp1;
-    private Paint sliderPaint,paint;
+    private Paint sliderPaint,paint,starPaint;
     private Random generator;
     int no_of_stars= 230;
     float [] genStars;
@@ -54,6 +54,9 @@ public class OptionsView extends View{
             genStars[b]=generator.nextInt(sH);
             b += 2;
         }
+        starPaint = new Paint();
+        starPaint.setColor(Color.WHITE);
+        starPaint.setStrokeWidth(scale);
         paint = new Paint();
         paint.setColor(Color.WHITE);
         paint.setTextSize(37* SCALE_CONST);
@@ -124,13 +127,14 @@ public class OptionsView extends View{
         super.onDraw(canvas);
         //STRINGS
         canvas.drawRGB(60,25,60);
+        canvas.drawPoints(genStars, starPaint);
         canvas.drawText("OPTIONS",sW/2f,(sH*0.12f),tp);
         canvas.drawText("Sound Effects: ",sW*0.1f,sH*0.24f,tp1);
         canvas.drawText("Music: ", sW*0.1f,sH*0.34f,tp1);
-        canvas.drawText("Disable On-Screen Pause Button: ",sW*0.1f,sH * 0.44f,tp1);
-        canvas.drawText("Back Button to Pause: ",sW*0.1f,sH * 0.54f,tp1);
-        canvas.drawText("View Highscores",sW*0.1f,sH * 0.64f,paint);
-        canvas.drawText("View Controls",sW*0.1f,sH * 0.74f,paint);
+        //canvas.drawText("Disable On-Screen Pause Button: ",sW*0.1f,sH * 0.44f,tp1);
+        //canvas.drawText("Back Button to Pause: ",sW*0.1f,sH * 0.54f,tp1);
+        //canvas.drawText("View Highscores",sW*0.1f,sH * 0.64f,paint);
+        canvas.drawText("View Controls",sW*0.1f,sH * 0.64f,paint);
 
         //canvas.drawText("slider 1 rect right: "+slider1Rect.right, 500,450,paint);
         //canvas.drawText("slider 1 rect left: "+slider1Rect.left, 500,500,paint);

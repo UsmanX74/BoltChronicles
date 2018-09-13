@@ -118,7 +118,7 @@ public class HighScoresView extends View{
 
         // Make the text a bit bigger
         paint.setTextSize(45);
-        bitmapBob = BitmapFactory.decodeResource(this.getResources(), R.drawable.ballsprite);
+        bitmapBob = BitmapFactory.decodeResource(this.getResources(), R.drawable.player3);
 
         // Scale the bitmap to the correct size
         // We need to do this because Android automatically
@@ -146,10 +146,10 @@ public class HighScoresView extends View{
 
         // Draw bob at bobXPosition, 200 pixels
         //canvas.drawBitmap(bitmapBob, bobXPosition, 200, paint);
-        blastAnimation.drawAnimation(canvas,100,470,1);
+        blastAnimation.drawAnimation(canvas,100,470,3);
         canvas.drawText("animation counter: "+blastAnimation.animationCounter,200,300,paint);
         canvas.drawText("all frames of all cycles:"+(blastAnimation.animationCycles*blastAnimation.totalFrames), 200,350,paint);
-        canvas.drawText("current frame index: "+blastAnimation.currentFrameIndex,200,400,paint);
+        //canvas.drawText("current frame index: "+blastAnimation.currentFrameIndex,200,400,paint);
         canvas.drawText("x: "+x,200,450,paint);
         canvas.drawText("y: "+y,400,450,paint);
         saberAnimation.drawAnimation(canvas,400,500,1);

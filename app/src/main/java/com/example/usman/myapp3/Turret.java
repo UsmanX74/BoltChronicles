@@ -44,7 +44,6 @@ public class Turret{
         rotationAngleinRad = rotationAngleinDeg*(Math.PI/180);
         tR.set(tX,tY,(tX+Assets.turret.getWidth()),(tY+Assets.turret.getHeight()));
         if(health == 0 || health == -5){
-
             tX = -800;
             tY = -800;
         }

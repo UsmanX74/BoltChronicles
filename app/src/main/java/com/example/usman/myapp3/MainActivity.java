@@ -84,10 +84,10 @@ public class MainActivity extends Activity {
         setContentView(mView);
     }
 
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        Toast.makeText(this,"MainActivity onDestroy() called",Toast.LENGTH_LONG).show();
         preferences = PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor editor = preferences.edit();
         editor.putInt("prevHighScore",getHighScore());
@@ -96,8 +96,8 @@ public class MainActivity extends Activity {
 
     @Override
     protected void onStop() {
-        Toast.makeText(this,"MainActivity onStop() called",Toast.LENGTH_LONG).show();
         super.onStop();
+        mView.pause();
         preferences = PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor editor = preferences.edit();
         editor.putInt("prevHighScore",getHighScore());
@@ -109,9 +109,11 @@ public class MainActivity extends Activity {
     public void onBackPressed(){
         if(OptionsView.backButtonPause){
             mView.pause();
-        }else{
-            //do nothing
         }
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+    }
 }

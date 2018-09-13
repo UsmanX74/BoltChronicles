@@ -17,8 +17,9 @@ public class Assets {
     explosion1,explosion2,explosion3,explosion4,explosion5,explosion6,explosion7,explosion8,explosion9,explosion10,explosion11,
             explosion12,pepeHurt,healthBar,pepeHealthBar,bossHealthBar,tempPepe,enShip,shield,shieldButton,title,
             newTitle,right,pause,logo,soundOn,soundOff,saber1,saber2,saber3,saber4,saber5,
-            saber6,saber7,saber8,slider,sliderbolt,blackLogo;
+            saber6,saber7,saber8,slider,sliderbolt,blackLogo,back,next,previous,buttonOn,buttonOff,storeTab,storeTabSelect;
     public static Typeface tf,tf1;
+    public static int counter = 0;
     //public static Bitmap [] asteroids = new Bitmap[60];
     public static int playerShoot,invaderExplode,coinPickup,playerShoot2;
     public static SoundPool sp;
@@ -97,6 +98,13 @@ public class Assets {
         pause = BitmapFactory.decodeResource(res,R.drawable.pause2);
         soundOn = BitmapFactory.decodeResource(res, R.drawable.speaker_on);
         soundOff = BitmapFactory.decodeResource(res, R.drawable.speaker_off);
+        back = BitmapFactory.decodeResource(res,R.drawable.back);
+        next = BitmapFactory.decodeResource(res,R.drawable.next);
+        previous = BitmapFactory.decodeResource(res,R.drawable.previous);
+        //buttonOn = BitmapFactory.decodeResource(res, R.drawable.button1);
+        //buttonOff = BitmapFactory.decodeResource(res, R.drawable.button2);
+        storeTab = BitmapFactory.decodeResource(res, R.drawable.storetab);
+        storeTabSelect = BitmapFactory.decodeResource(res, R.drawable.storetab_select);
         tempPepe = pepeBoss;
     }
 

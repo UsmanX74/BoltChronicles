@@ -2,6 +2,7 @@ package com.example.usman.myapp3;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -23,6 +24,18 @@ public class CreditsView extends View{
     TextPaint tp,tp1,tp2;
     private int logo = 0;
     private boolean betaTestersScreen = false,creditsScreen = true;
+    public boolean isCreditsScreen(){
+        return this.creditsScreen;
+    }
+    public boolean isBetaTestersScreen(){
+        return this.betaTestersScreen;
+    }
+    public void setCreditsScreen(boolean visible){
+        this.creditsScreen = visible;
+    }
+    public void setBetaTestersScreen(boolean visible){
+        this.betaTestersScreen = visible;
+    }
     String developed = "Developed And Produced By:";
     Rect developedBounds;
     RectF betaTestersRect, backButtonRect;
@@ -31,6 +44,8 @@ public class CreditsView extends View{
     int a=0;
     int b=1;
     int c=1;
+    float backX = (sW*0.05f);
+    float backY = (sH*0.09f);
     private Random generator;
     Paint paint;
     public CreditsView(Context context) {
@@ -69,7 +84,8 @@ public class CreditsView extends View{
         tp2.setTextAlign(Paint.Align.CENTER);
         tp2.setFakeBoldText(true);
         betaTestersRect = stringRect("View Beta Testers",sW/2f,sH*0.91f,tp2,null,true);
-        backButtonRect = stringRect("Back",sW*0.05f,sH*0.15f,tp1,null,false);
+        //backButtonRect = stringRect("Back",sW*0.05f,sH*0.15f,tp1,null,false);
+        backButtonRect = bitmapToRect(Assets.back,backX,backY);
 
     }
 
@@ -101,16 +117,17 @@ public class CreditsView extends View{
             invalidate();
         }else if(!creditsScreen && betaTestersScreen){
             canvas.drawARGB(255,77,147,190);
-            canvas.drawText("Beta Testers",sW/2f,sH*0.15f,tp);
-            canvas.drawText("Back",sW*0.05f,sH*0.15f,paint);
-            canvas.drawText("Juggernaut", (sW * 0.07f), sH * 0.30f, tp1);
-            canvas.drawText("Lord Autist", (sW * 0.07f), sH * 0.38f, tp1);
-            canvas.drawText("Horny Psycho", (sW * 0.07f), sH * 0.46f, tp1);
-            canvas.drawText("Zaptek", (sW * 0.07f), sH * 0.54f, tp1);
-            canvas.drawText("Zayn", (sW * 0.07f), sH * 0.62f, tp1);
-            canvas.drawText("Rafay",(sW * 0.07f), sH * 0.70f, tp1);
-            canvas.drawText("Biscuit", (sW * 0.07f), sH * 0.78f, tp1);
             canvas.drawPoints(genStars,paint);
+            canvas.drawText("Beta Testers",sW/2f,sH*0.15f,tp);
+            canvas.drawBitmap(Assets.back,backX,backY,null);
+            //canvas.drawText("Back",sW*0.05f,sH*0.15f,paint);
+            canvas.drawText("Juggernaut", (sW * 0.07f), sH * 0.30f, tp1);
+            canvas.drawText("lord autist", (sW * 0.07f), sH * 0.38f, tp1);
+            canvas.drawText("horny psycho", (sW * 0.07f), sH * 0.46f, tp1);
+            canvas.drawText("zaptek", (sW * 0.07f), sH * 0.54f, tp1);
+            canvas.drawText("zayn", (sW * 0.07f), sH * 0.62f, tp1);
+            canvas.drawText("rafay",(sW * 0.07f), sH * 0.70f, tp1);
+            canvas.drawText("biscuit", (sW * 0.07f), sH * 0.78f, tp1);
             moveStars();
             repeatStars();
             invalidate();
