@@ -63,7 +63,6 @@ public class GameView extends View {
     private Paint paint;
     private Paint bulletPaint, pepeBulletPaint, bossBulletPaint, redPaint, bluePaint, greenPaint, yellowPaint, whitePaint, whitePaintMedium;
     private TextPaint tp;
-    private String resume = "Resume", quit = "Quit to Main Menu", play = "Play Again", restart = "Restart";
     boolean reloading = false;
     private Random generator;
     int no_of_stars = 230;
@@ -81,7 +80,7 @@ public class GameView extends View {
     Enemy d;
     PepeBoss pepeboss;
     BossShip bossship;
-    Boss2 bossship2;
+    //Boss2 bossship2;
     Turret turretGun;
     int densityDpi;
     String sessionCoins = "0";
@@ -92,7 +91,7 @@ public class GameView extends View {
     TitleActivity t;
     boolean bringCoin, turretUp, turretDown;
     int genCoinX = -30, genCoinY = -30, mf, lastx, lasty;
-    Boss3 boss3;
+    //Boss3 boss3;
     RectF playRect, resumeRect, quitRect;
     private boolean okap;
     int testone = 0;
@@ -216,13 +215,13 @@ public class GameView extends View {
         bossship = new BossShip((int) (MainActivity.getsX()), 0);
         //bossManager = new BossManager();
         //bossship2 = bossManager.new BossShip2((int)MainActivity.getsX(),0);
-        bossship2 = new Boss2((int) MainActivity.getsX(), 0);
-        boss3 = new Boss3(20, 20);
+        //bossship2 = new Boss2((int) MainActivity.getsX(), 0);
+        //boss3 = new Boss3(20, 20);
         //bossship2 = new BossManager().new BossShip2((int)(MainActivity.getsX()),0);
         turretGun = new Turret(0, screenH / 2);
         pepeProjectiles = pepeboss.getPepeProjectiles();
         bossProjectiles = bossship.getBossProjectiles();
-        boss2Projectiles = bossship2.getBoss2Projectiles();
+        //boss2Projectiles = bossship2.getBoss2Projectiles();
         turretProjectiles = turretGun.getTurretProjectiles();
         d = new Enemy(0, 0);
         s = new Projectiles(0, 0);
@@ -270,7 +269,7 @@ public class GameView extends View {
             //draw background color
             //Log.d("hardwareACCEL","hardware accelerated: "+getRootView().isHardwareAccelerated());
             canvas.drawARGB(255, 0, 0, 40);
-            drawLineAsNeon(canvas,200,50,200,700,Color.RED,glowPaint,10,40);
+            //drawLineAsNeon(canvas,200,50,200,700,Color.RED,glowPaint,10,40);
             //draw the stars
             canvas.drawPoints(genStars, paint);
             //move the stars
@@ -285,7 +284,7 @@ public class GameView extends View {
             checkEnemy();
             checkPepeTime();
             checkBossTime();
-            checkBoss2Time();
+            //checkBoss2Time();
             //checkTurretTime();
             PepeBoss.setScreenW(screenW);
             //whitePaint.setStrokeWidth(1*scale);
@@ -412,9 +411,9 @@ public class GameView extends View {
                 canvas.drawRect((int) (screenW * 0.58) + (3 * scale), (int) (screenH * 0.004) + (3 * scale), (int) (screenW * 0.58) + (3 * scale) + boss_wi, (int) (screenH * 0.004) + (3 * scale) + boss_he, bluePaint);
             }
             if (bringBoss2) {
-                bossship2.update();
-                bossship2.follow();
-                canvas.drawBitmap(Assets.bossShip2, bossship2.getX(), bossship2.getY(), null);
+                //bossship2.update();
+                //bossship2.follow();
+                //canvas.drawBitmap(Assets.bossShip2, bossship2.getX(), bossship2.getY(), null);
                 canvas.drawBitmap(Assets.bossHealthBar, (int) (screenW * 0.58), (int) (screenH * 0.004), null);
                 canvas.drawRect((int) (screenW * 0.58) + (3 * scale), (int) (screenH * 0.004) + (3 * scale), (int) (screenW * 0.58) + (3 * scale) + boss2_wi, (int) (screenH * 0.004) + (3 * scale) + boss2_he, bluePaint);
             }
@@ -479,16 +478,17 @@ public class GameView extends View {
                 checkTurretBulletCollision();
             }
             if (bringBoss2) {
+
                 if (shouldBoss2Shoot()) {
-                    bossship2.shoot();
+                    //bossship2.shoot();
                 }
                 if (gen3 == 30 || gen3 == 60 || gen3 == 90 || gen3 == 120 || gen3 == 150) {
-                    if (bossship2.getX() < (Assets.boltShip.getWidth() + 10)) {
+                   // if (bossship2.getX() < (Assets.boltShip.getWidth() + 10)) {
                         //bossship2.specialAttack();
-                    }
+                    //}
                 }
-                checkBoss2Collision();
-                checkPlayerBoss2Collision();
+                //checkBoss2Collision();
+                //checkPlayerBoss2Collision();
                 checkBulletsCollision();
                 checkTurretBulletCollision();
                 checkTurretCollision();
@@ -679,11 +679,13 @@ public class GameView extends View {
         }
         return false;
     }
-    public boolean shouldBoss2Shoot() {//checks if boss can shoot
+    public boolean shouldBoss2Shoot() {
+        /*//checks if boss can shoot
         if ((bossship2.getY() == player.getbY() || gen3 == 40 || gen3 == 80 || gen3 == 120 || gen3 == 160 || gen3 == 20 || gen3 == 135
                 || gen3 == 100 || gen3 == 50 || gen3 == 130 || gen3 == 150 || gen3 == 70) && bossship2.inPosition()) {
             return true;
         }
+        */
         return false;
     }
     public void checkPlayerEnemyCollision(){//checks if enemies collide with player
@@ -739,7 +741,7 @@ public class GameView extends View {
         }
     }
     public void checkPlayerBoss2Collision() {//checks if BossShip2 bullets hit the player
-        for (BossProjectiles ql : bossship2.getBoss2Projectiles()) {
+        /*for (BossProjectiles ql : bossship2.getBoss2Projectiles()) {
             if (ql.getR().intersect(player.getPlayerRect())) {
                 ql.setVisible(false);
                 //MainActivity.score -= 2;
@@ -751,6 +753,7 @@ public class GameView extends View {
                 }
             }
         }
+        */
     }
     public void checkBulletsCollision() {//checks if player bullets collide with pepe bullets or with BossShip bullets
         for (Projectiles p : player.getProjectiles())
@@ -767,6 +770,7 @@ public class GameView extends View {
                     bp.setVisible(false);
                 }
             }
+            /*
         for (BossProjectiles bp2 : bossship2.getBoss2Projectiles())
             for (Projectiles p : player.getProjectiles()) {
                 if (p.getR().intersect(bp2.getR())) {
@@ -774,6 +778,7 @@ public class GameView extends View {
                     bp2.setVisible(false);
                 }
             }
+            */
     }
     public void checkTurretBulletCollision() {
         for (TurretProjectiles tp : turretGun.getTurretProjectiles())
@@ -821,7 +826,7 @@ public class GameView extends View {
         }
     }
     public void checkBoss2Collision() {//checks if player bullets hit BossShip
-        for (Projectiles pl : player.getProjectiles()) {
+        /*for (Projectiles pl : player.getProjectiles()) {
             if (pl.getR().intersect(bossship2.getR())) {
                 bossship2.health -= 1;
                 MainActivity.score += 1;
@@ -831,6 +836,7 @@ public class GameView extends View {
                 pl.setVisible(false);
             }
         }
+        */
     }
     public boolean angry() {//checks if pepe is angry
         return (pepeboss.health < 30);
@@ -846,9 +852,10 @@ public class GameView extends View {
         }
     }
     public void checkBoss2Time() {//checks if it is time to bring BossShip
-        if (MainActivity.score > 1500 && bossship2.getHealth() != 0) {
+        /*if (MainActivity.score > 1500 && bossship2.getHealth() != 0) {
             bringBoss2 = true;
         }
+        */
     }
     public void checkTurretTime() {//checks if is time to bring turretGun
         if (turretButtonPressed && turretGun.health != 0) {
@@ -1121,7 +1128,7 @@ public class GameView extends View {
                     init();
                     pepeboss.init();
                     bossship.init();
-                    bossship2.init();
+                    //bossship2.init();
                     MainActivity.preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
                     SharedPreferences.Editor editor = MainActivity.preferences.edit();
                     editor.putInt("HighScore",MainActivity.getHighScore());
@@ -1293,14 +1300,14 @@ public class GameView extends View {
         enemies = enemy.getEnemies();
         pepeboss = new PepeBoss((int)(MainActivity.getsX()- Assets.pepeBoss.getWidth()),0);
         bossship = new BossShip((int)(MainActivity.getsX()),0);
-        bossship2 = new Boss2(MainActivity.getsX(),0);
+        //bossship2 = new Boss2(MainActivity.getsX(),0);
         pepeboss.init();
         bossship.init();
-        bossship2.init();
+        //bossship2.init();
         turretGun = new Turret(0,0);
         pepeProjectiles = pepeboss.getPepeProjectiles();
         bossProjectiles = bossship.getBossProjectiles();
-        boss2Projectiles = bossship2.getBoss2Projectiles();
+        //boss2Projectiles = bossship2.getBoss2Projectiles();
         turretProjectiles = turretGun.getTurretProjectiles();
         d = new Enemy(0,0);
         s = new Projectiles(0,0);
