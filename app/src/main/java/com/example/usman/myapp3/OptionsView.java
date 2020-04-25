@@ -38,8 +38,8 @@ public class OptionsView extends View{
     public void setOptionsScreen(boolean optionsScreen) {
         this.optionsScreen = optionsScreen;
     }
-    RectF controlsRect, backButtonRect;
-    float backX = (sW*0.05f);
+    RectF backButtonRect;
+    float backX = (sW*0.95f);
     float backY = (sH*0.09f);
     private Paint sliderPaint,paint,starPaint;
     private Random generator;
@@ -201,10 +201,10 @@ public class OptionsView extends View{
             canvas.drawPoints(genStars, starPaint);
             canvas.drawBitmap(Assets.back,backX,backY,null);
             //canvas.drawBitmap(Assets.pause, (float) (sW * 0.018), (float) (sH * 0.01), null);
-            canvas.drawBitmap(Assets.boltShip,0,sH/3,null);
+            //canvas.drawBitmap(Assets.boltShip,0,sH/3,null);
             canvas.drawBitmap(Assets.coin,(float)(sW*0.75),(float)(sH*0.75),null);
-            canvas.drawLine(0,(float)(sH*0.5),sW/2,(float)(sH*0.5),sliderPaint);
-            canvas.drawLine(sW/2,0,sW/2,sH,sliderPaint);
+            //canvas.drawLine(0,(float)(sH*0.5),sW/2,(float)(sH*0.5),sliderPaint);
+            //canvas.drawLine(sW/2,0,sW/2,sH,sliderPaint);
             moveStars();
             repeatStars();
             invalidate();
