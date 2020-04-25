@@ -25,6 +25,22 @@ import static com.example.usman.myapp3.TitleView.scale;
 
 public class OptionsView extends View{
     private TextPaint tp, tp1;
+    private boolean controlsScreen = false, optionsScreen = true;
+    public boolean isControlsScreen() {
+        return controlsScreen;
+    }
+    public boolean isOptionsScreen() {
+        return optionsScreen;
+    }
+    public void setControlsScreen(boolean controlsScreen) {
+        this.controlsScreen = controlsScreen;
+    }
+    public void setOptionsScreen(boolean optionsScreen) {
+        this.optionsScreen = optionsScreen;
+    }
+    RectF controlsRect, backButtonRect;
+    float backX = (sW*0.05f);
+    float backY = (sH*0.09f);
     private Paint sliderPaint,paint,starPaint;
     private Random generator;
     int no_of_stars= 230;
@@ -54,6 +70,7 @@ public class OptionsView extends View{
             genStars[b]=generator.nextInt(sH);
             b += 2;
         }
+        backButtonRect = bitmapToRect(Assets.back,backX,backY);
         starPaint = new Paint();
         starPaint.setColor(Color.WHITE);
         starPaint.setStrokeWidth(scale);
@@ -85,7 +102,7 @@ public class OptionsView extends View{
         disableOnScreenPauseRect = stringRect("Disable on-screen pause button: p",0.1f,0.44f,tp1,null,false);
         backButtonPauseRect = stringRect("Back button to pause: p",0.1f,0.54f,tp1,null,false);
         viewHighscoresRect = stringRect("View highscores: p",0.1f,0.64f,tp1,null,false);
-        viewControlsRect = stringRect("View controls: p",0.1f,0.74f,tp1,null,false);
+        viewControlsRect = stringRect("View controls",sW*0.1f, sH*0.64f,tp1,null,false);
         tickRect.set(disableOnScreenPauseRect.right + (3*scale),170,((sW/2f) +50),220);
         tickRect2.set(1,1,1,1);
 
@@ -125,58 +142,73 @@ public class OptionsView extends View{
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        //STRINGS
-        canvas.drawRGB(60,25,60);
-        canvas.drawPoints(genStars, starPaint);
-        canvas.drawText("OPTIONS",sW/2f,(sH*0.12f),tp);
-        canvas.drawText("Sound Effects: ",sW*0.1f,sH*0.24f,tp1);
-        canvas.drawText("Music: ", sW*0.1f,sH*0.34f,tp1);
-        //canvas.drawText("Disable On-Screen Pause Button: ",sW*0.1f,sH * 0.44f,tp1);
-        //canvas.drawText("Back Button to Pause: ",sW*0.1f,sH * 0.54f,tp1);
-        //canvas.drawText("View Highscores",sW*0.1f,sH * 0.64f,paint);
-        canvas.drawText("View Controls",sW*0.1f,sH * 0.64f,paint);
+        if (optionsScreen && !controlsScreen) {
+            //STRINGS
+            canvas.drawRGB(60, 25, 60);
+            canvas.drawPoints(genStars, starPaint);
+            canvas.drawText("OPTIONS", sW / 2f, (sH * 0.12f), tp);
+            canvas.drawText("Sound Effects: ", sW * 0.1f, sH * 0.24f, tp1);
+            canvas.drawText("Music: ", sW * 0.1f, sH * 0.34f, tp1);
+            //canvas.drawText("Disable On-Screen Pause Button: ",sW*0.1f,sH * 0.44f,tp1);
+            //canvas.drawText("Back Button to Pause: ",sW*0.1f,sH * 0.54f,tp1);
+            //canvas.drawText("View Highscores",sW*0.1f,sH * 0.64f,paint);
+            canvas.drawText("View Controls", sW*0.1f, sH*0.64f, tp1);
 
-        //canvas.drawText("slider 1 rect right: "+slider1Rect.right, 500,450,paint);
-        //canvas.drawText("slider 1 rect left: "+slider1Rect.left, 500,500,paint);
-        //canvas.drawText("slider 2 rect right: "+slider2Rect.right, 500,550,paint);
-        //canvas.drawText("slider 2 rect left: "+slider2Rect.left, 500,600,paint);
-        //canvas.drawText("slider 1 X: "+slider1X, 500,650,paint);
-        //canvas.drawText("slider 2 X: "+slider2X, 500,700,paint);
+            //canvas.drawText("slider 1 rect right: "+slider1Rect.right, 500,450,paint);
+            //canvas.drawText("slider 1 rect left: "+slider1Rect.left, 500,500,paint);
+            //canvas.drawText("slider 2 rect right: "+slider2Rect.right, 500,550,paint);
+            //canvas.drawText("slider 2 rect left: "+slider2Rect.left, 500,600,paint);
+            //canvas.drawText("slider 1 X: "+slider1X, 500,650,paint);
+            //canvas.drawText("slider 2 X: "+slider2X, 500,700,paint);
 
-        //SHAPES
-        // slider 1 color rectangle
-        canvas.drawRect(slider1Rect.left,slider1Rect.top,slider1X,slider1Rect.bottom, sliderPaint);
-        //slider 2 color rectangle
-        canvas.drawRect(slider2Rect.left,slider2Rect.top,slider2X,slider2Rect.bottom, sliderPaint);
-        // disable on-screen pause rectangle
-        canvas.drawRect(tickRect,rectPaint);
-        canvas.drawRect(disableOnScreenPauseRect,rectPaint);
-        canvas.drawRect(backButtonPauseRect,rectPaint);
-        // back button pause rectangle
-        canvas.drawRect(tickRect2,rectPaint);
-        //experimental
-        //canvas.drawRect(slider1Rect,rectPaint);
-        //canvas.drawRect(slider2Rect,rectPaint);
+            //SHAPES
+            // slider 1 color rectangle
+            canvas.drawRect(slider1Rect.left, slider1Rect.top, slider1X, slider1Rect.bottom, sliderPaint);
+            //slider 2 color rectangle
+            canvas.drawRect(slider2Rect.left, slider2Rect.top, slider2X, slider2Rect.bottom, sliderPaint);
+            // disable on-screen pause rectangle
+            canvas.drawRect(tickRect, rectPaint);
+            canvas.drawRect(disableOnScreenPauseRect, rectPaint);
+            canvas.drawRect(backButtonPauseRect, rectPaint);
+            // back button pause rectangle
+            canvas.drawRect(tickRect2, rectPaint);
+            //experimental
+            //canvas.drawRect(slider1Rect,rectPaint);
+            //canvas.drawRect(slider2Rect,rectPaint);
 
-        //BITMAPS
-        canvas.drawBitmap(Assets.slider,soundEffectsRect.right,((soundEffectsRect.top+soundEffectsRect.height()/2)-Assets.slider.getHeight()/2)+scale,null);
-        canvas.drawBitmap(Assets.slider,musicRect.right,((musicRect.top+musicRect.height()/2)-Assets.slider.getHeight()/2)+scale,null);
-        canvas.drawBitmap(Assets.sliderbolt,slider1X,(soundEffectsRect.top+soundEffectsRect.height()/2)-(Assets.sliderbolt.getHeight()/2),null);
-        canvas.drawBitmap(Assets.sliderbolt,slider2X,(musicRect.top+musicRect.height()/2)-(Assets.sliderbolt.getHeight()/2),null);
+            //BITMAPS
+            canvas.drawBitmap(Assets.slider, soundEffectsRect.right, ((soundEffectsRect.top + soundEffectsRect.height() / 2) - Assets.slider.getHeight() / 2) + scale, null);
+            canvas.drawBitmap(Assets.slider, musicRect.right, ((musicRect.top + musicRect.height() / 2) - Assets.slider.getHeight() / 2) + scale, null);
+            canvas.drawBitmap(Assets.sliderbolt, slider1X, (soundEffectsRect.top + soundEffectsRect.height() / 2) - (Assets.sliderbolt.getHeight() / 2), null);
+            canvas.drawBitmap(Assets.sliderbolt, slider2X, (musicRect.top + musicRect.height() / 2) - (Assets.sliderbolt.getHeight() / 2), null);
 
-        //canvas.drawRect(tickRect,rectPaint);
-        checkBothSliderXValues();
-        currentSoundSliderValue = ((slider1X-slider1Rect.left)/slider1Rect.width())*(TOTAL_NUMBER_OF_STEPS-1);
-        currentMusicSliderValue = ((slider2X-slider2Rect.left)/slider2Rect.width())*(TOTAL_NUMBER_OF_STEPS-1);
-        checkBothVolumeSliderValues();
-        TitleActivity.currentSoundVolume = Assets.manageVolume(currentSoundSliderValue)/10f; //dividing by a factor of 10 coz max volume of SoundPool Objects is TOO DAMN HIGH!! ;
-        TitleActivity.currentMusicVolume = Assets.manageVolume(currentMusicSliderValue);
-        setSoundAndMusicVolume();
-        //move the stars
-        moveStars();
-        //repeat the stars
-        repeatStars();
-        invalidate();
+            //canvas.drawRect(tickRect,rectPaint);
+            checkBothSliderXValues();
+            currentSoundSliderValue = ((slider1X - slider1Rect.left) / slider1Rect.width()) * (TOTAL_NUMBER_OF_STEPS - 1);
+            currentMusicSliderValue = ((slider2X - slider2Rect.left) / slider2Rect.width()) * (TOTAL_NUMBER_OF_STEPS - 1);
+            checkBothVolumeSliderValues();
+            TitleActivity.currentSoundVolume = Assets.manageVolume(currentSoundSliderValue) / 10f; //dividing by a factor of 10 coz max volume of SoundPool Objects is TOO DAMN HIGH!! ;
+            TitleActivity.currentMusicVolume = Assets.manageVolume(currentMusicSliderValue);
+            setSoundAndMusicVolume();
+            //move the stars
+            moveStars();
+            //repeat the stars
+            repeatStars();
+            invalidate();
+        }else if(!optionsScreen && controlsScreen) {
+            setBackgroundResource(R.drawable.game_controls);
+            //canvas.drawRGB(60, 25, 60);
+            canvas.drawPoints(genStars, starPaint);
+            canvas.drawBitmap(Assets.back,backX,backY,null);
+            //canvas.drawBitmap(Assets.pause, (float) (sW * 0.018), (float) (sH * 0.01), null);
+            canvas.drawBitmap(Assets.boltShip,0,sH/3,null);
+            canvas.drawBitmap(Assets.coin,(float)(sW*0.75),(float)(sH*0.75),null);
+            canvas.drawLine(0,(float)(sH*0.5),sW/2,(float)(sH*0.5),sliderPaint);
+            canvas.drawLine(sW/2,0,sW/2,sH,sliderPaint);
+            moveStars();
+            repeatStars();
+            invalidate();
+        }
     }
 
     @Override
@@ -207,6 +239,15 @@ public class OptionsView extends View{
                 }
                 if(slider2RectCopy.contains(X,Y) || bitmapToRect(Assets.sliderbolt,slider2X,(musicRect.top+musicRect.height()/2)-(Assets.sliderbolt.getHeight()/2)).contains(X,Y)){
                     slider2X = X;
+                }
+                if(viewControlsRect.contains(X,Y) && optionsScreen && !controlsScreen){
+                    //Toast.makeText(getContext(),"game is not in beta phase yet",Toast.LENGTH_LONG).show();
+                    optionsScreen = false;
+                    controlsScreen = true;
+                }
+                if(backButtonRect.contains(X,Y) && !optionsScreen && controlsScreen){
+                    optionsScreen = true;
+                    controlsScreen = false;
                 }
                 break;
         }

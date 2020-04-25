@@ -122,12 +122,14 @@ public class CreditsView extends View{
             canvas.drawBitmap(Assets.back,backX,backY,null);
             //canvas.drawText("Back",sW*0.05f,sH*0.15f,paint);
             canvas.drawText("Juggernaut", (sW * 0.07f), sH * 0.30f, tp1);
-            canvas.drawText("lord autist", (sW * 0.07f), sH * 0.38f, tp1);
-            canvas.drawText("horny psycho", (sW * 0.07f), sH * 0.46f, tp1);
-            canvas.drawText("zaptek", (sW * 0.07f), sH * 0.54f, tp1);
-            canvas.drawText("zayn", (sW * 0.07f), sH * 0.62f, tp1);
-            canvas.drawText("rafay",(sW * 0.07f), sH * 0.70f, tp1);
-            canvas.drawText("biscuit", (sW * 0.07f), sH * 0.78f, tp1);
+            canvas.drawText("DeathBeeo", (sW * 0.07f), sH * 0.38f, tp1);
+            canvas.drawText("Horny Psycho", (sW * 0.07f), sH * 0.46f, tp1);
+            canvas.drawText("Zaptek", (sW * 0.07f), sH * 0.54f, tp1);
+            canvas.drawText("Zayn", (sW * 0.07f), sH * 0.62f, tp1);
+            canvas.drawText("Rafay",(sW * 0.07f), sH * 0.70f, tp1);
+            canvas.drawText("Biscuit", (sW * 0.07f), sH * 0.78f, tp1);
+            canvas.drawText("Inferno", (sW * 0.07f), sH * 0.86f, tp1);
+            canvas.drawText("Kori", (sW * 0.07f), sH * 0.94f, tp1);
             moveStars();
             repeatStars();
             invalidate();
@@ -154,8 +156,9 @@ public class CreditsView extends View{
                 break;
             case MotionEvent.ACTION_UP:
                 logo = 0;
-                if(betaTestersRect.contains((int)X,(int)Y) && creditsScreen && !betaTestersScreen){
-                    //Toast.makeText(getContext(),"game is not in beta phase yet",Toast.LENGTH_LONG).show();
+                if(betaTestersRect.contains(X,Y) && creditsScreen && !betaTestersScreen){
+                    //Toast.makeText(getContex
+                    // t(),"game is not in beta phase yet",Toast.LENGTH_LONG).show();
                     creditsScreen = false;
                     betaTestersScreen = true;
                 }

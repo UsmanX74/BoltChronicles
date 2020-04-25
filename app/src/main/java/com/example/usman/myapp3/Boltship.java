@@ -4,7 +4,9 @@ import android.graphics.Rect;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.ListIterator;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import static com.example.usman.myapp3.GameView.scale;
 
@@ -12,8 +14,7 @@ public class Boltship {
 
     private Rect playerRect = new Rect();
     private int bX= 0,bY = 0,speedY = (int)(8*scale/1.5),health = 220;
-    private ArrayList<Projectiles> projectiles = new ArrayList<Projectiles>();
-
+    private List<Projectiles> projectiles = new CopyOnWriteArrayList<Projectiles>();
     public Rect getPlayerRect() {
         return playerRect;
     }
@@ -23,7 +24,7 @@ public class Boltship {
     public int getbX() {
         return bX;
     }
-    public ArrayList<Projectiles> getProjectiles() {
+    public List<Projectiles> getProjectiles() {
         return projectiles;
     }
 

@@ -12,16 +12,12 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.preference.PreferenceManager;
 import android.text.TextPaint;
-import android.util.Base64;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.Toast;
-import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Random;
-
-import static android.content.Context.MODE_PRIVATE;
 import static com.example.usman.myapp3.TitleActivity.currentMusicVolume;
 import static com.example.usman.myapp3.TitleActivity.currentSoundVolume;
 import static com.example.usman.myapp3.TitleActivity.sH;
@@ -29,20 +25,18 @@ import static com.example.usman.myapp3.TitleActivity.sW;
 import static com.example.usman.myapp3.TitleView.SCALE_CONST;
 
 public class GameView extends View {
-    int action, actionCode, ind_up = -1, ind_down = -1, activePointersDown;//no. of pointers touching down on screen.
+    //int action, actionCode, ind_up = -1, ind_down = -1, activePointersDown;//no. of pointers touching down on screen.
     int[] x;
     int[] y;
     int[] ids;
     int[] touch_code_ids;//for each action performed, the pointer's id which performed the action is stored
     //in the array with the action's corresponding index; each index of the array is associated with
     //the actions described below in the following format--->(action = index).
-    int id_up, id_down, id_non_p;
+    //int id_up, id_down, id_non_p;
     int max_pointers = 5;
     int[] x_up;
     int[] y_up;
     int gunclip = 60;
-    public static int i = 1;
-    boolean handled = false;
     long startTime, delTime;
     static float touchX, touchY;
     private static int screenW, screenH;
@@ -73,34 +67,35 @@ public class GameView extends View {
     private static int gen = 0;
     protected int coins = 0;
     public static int ennum = 0;
-    Iterator itr, eItr;
     Context myContext;
-    ArrayList enemies, projectiles, pepeProjectiles, bossProjectiles, turretProjectiles, boss2Projectiles;
+    List enemies, projectiles, pepeProjectiles, bossProjectiles, turretProjectiles, boss2Projectiles;
     Projectiles s;
     Enemy d;
     PepeBoss pepeboss;
     BossShip bossship;
-    //Boss2 bossship2;
+    Boss2 bossship2;
     Turret turretGun;
     int densityDpi;
-    String sessionCoins = "0";
+    int sessionCoins = 0;
     private int gen2 = 0, gen3 = 0;
     public static long eventDownDuration;
-    Timer enemyTimer, coinTimer, turretShootTimer, reloadTimer;
+    Timer enemyTimer, coinTimer, turretShootTimer, reloadTimer, testTimer;
     int globalx = -300, globaly = -300;
     TitleActivity t;
     boolean bringCoin, turretUp, turretDown;
     int genCoinX = -30, genCoinY = -30, mf, lastx, lasty;
     //Boss3 boss3;
-    RectF playRect, resumeRect, quitRect;
-    private boolean okap;
+    RectF playRect, resumeRect, quitRect, watchAdRect;
     int testone = 0;
     int pointerCount, eventaction;
+    MainActivity mainActivity;
     FramesAnimation blastAnimation;
     SharedPreferences.Editor editor;
+    Tasks task1;
 
-    public GameView(final Context context) {
+    public GameView(final Context context, MainActivity mainActivity) {
         super(context);
+        this.mainActivity = mainActivity;
         glowPaint = new Paint();
         MainActivity.preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
         editor = MainActivity.preferences.edit();
@@ -110,7 +105,7 @@ public class GameView extends View {
         y_up = new int[max_pointers];
         ids = new int[max_pointers];
         touch_code_ids = new int[max_pointers];
-        for (int w = 0; w < max_pointers; w++) {
+        for (int w = 0; w < max_pointers; w++){
             x[w] = -1;
             y[w] = -1;
             ids[w] = -1;
@@ -139,14 +134,14 @@ public class GameView extends View {
         scale = context.getResources().getDisplayMetrics().density;
         screenW = MainActivity.getsX();
         screenH = MainActivity.getsY();
-        wi = 220 * (float) (scale);
-        he = 3 * (float) (scale);
-        pepe_wi = 196 * (float) (scale);
-        pepe_he = 5 * (float) (scale);
-        boss_wi = 244 * (float) (scale);
-        boss_he = 5 * (float) (scale);
-        boss2_wi = 244 * (float) (scale);
-        boss2_he = 5 * (float) (scale);
+        wi = 220 * (scale);
+        he = 3 * (scale);
+        pepe_wi = 196 * (scale);
+        pepe_he = 5 * (scale);
+        boss_wi = 244 * (scale);
+        boss_he = 5 * (scale);
+        boss2_wi = 244 * (scale);
+        boss2_he = 5 * (scale);
         paint = new Paint();
         bulletPaint = new Paint();
         redPaint = new Paint();
@@ -178,7 +173,7 @@ public class GameView extends View {
         whitePaintMedium.setTextAlign(Paint.Align.CENTER);
         tp.setColor(Color.WHITE);
         tp.setTypeface(Assets.tf);
-        tp.setTextSize((float) (56 * SCALE_CONST));
+        tp.setTextSize((56 * SCALE_CONST));
         tp.setTextAlign(TextPaint.Align.CENTER);
         //play and resume @(x,y) = (sW*0.5 , sH*0.48)
         //quit @ (x,y) = (sW*0.5 , sH*62)
@@ -199,9 +194,11 @@ public class GameView extends View {
         playRect = new RectF();
         resumeRect = new RectF();
         quitRect = new RectF();
+        watchAdRect = new RectF();
         playRect = stringRect("Play Again",sW*0.5f,sH*0.48f,tp,null,true);
         resumeRect = stringRect("Resume",sW*0.5f,sH*0.48f,tp,null,true);
         quitRect = stringRect("Quit to Main Menu",sW*0.5f,sH*0.62f,tp,null,true);
+        watchAdRect = stringRect("watch ad to revive",sW*0.5f,sH*0.76f,tp,null,true);
         starSpeed = 6f;
         player = new Boltship();
         enemySpawnInterval = 750;
@@ -211,17 +208,15 @@ public class GameView extends View {
         //Log.d(TAG, "scaled ship X: " + scaledShipX);
         projectiles = player.getProjectiles();
         enemies = enemy.getEnemies();
-        pepeboss = new PepeBoss((int) (MainActivity.getsX() - Assets.pepeBoss.getWidth()), 0);
-        bossship = new BossShip((int) (MainActivity.getsX()), 0);
-        //bossManager = new BossManager();
-        //bossship2 = bossManager.new BossShip2((int)MainActivity.getsX(),0);
-        //bossship2 = new Boss2((int) MainActivity.getsX(), 0);
+        pepeboss = new PepeBoss((MainActivity.getsX() - Assets.pepeBoss.getWidth()), 0);
+        bossship = new BossShip((MainActivity.getsX()), 0);
+        bossship2 = new Boss2(MainActivity.getsX(), 0);
         //boss3 = new Boss3(20, 20);
         //bossship2 = new BossManager().new BossShip2((int)(MainActivity.getsX()),0);
         turretGun = new Turret(0, screenH / 2);
         pepeProjectiles = pepeboss.getPepeProjectiles();
         bossProjectiles = bossship.getBossProjectiles();
-        //boss2Projectiles = bossship2.getBoss2Projectiles();
+        boss2Projectiles = bossship2.getBoss2Projectiles();
         turretProjectiles = turretGun.getTurretProjectiles();
         d = new Enemy(0, 0);
         s = new Projectiles(0, 0);
@@ -229,6 +224,7 @@ public class GameView extends View {
         coinTimer = new Timer();
         turretShootTimer = new Timer();
         reloadTimer = new Timer();
+        testTimer = new Timer();
         blastAnimation = new FramesAnimation(45,12,false);
         blastAnimation.addFrame(Assets.explosion1);
         blastAnimation.addFrame(Assets.explosion2);
@@ -244,7 +240,9 @@ public class GameView extends View {
         blastAnimation.addFrame(Assets.explosion12);
         gameRunning = true;
         setLayerType(LAYER_TYPE_HARDWARE,null);
-        BlurMaskFilter bl;
+        task1 = new Tasks();
+        //task1.mFinished = true;
+        task1.start();
     }
 
 
@@ -263,11 +261,12 @@ public class GameView extends View {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         if (gameRunning) {
+            synchronized (task1.mPauseLock) {
+                task1.mPaused = false;
+                //task1.mFinished = false;
+                task1.mPauseLock.notifyAll();
+            }
             startTime = System.currentTimeMillis();
-            //resetHighscore();
-            //setLayerType(LAYER_TYPE_SOFTWARE,redPaint);
-            //draw background color
-            //Log.d("hardwareACCEL","hardware accelerated: "+getRootView().isHardwareAccelerated());
             canvas.drawARGB(255, 0, 0, 40);
             //drawLineAsNeon(canvas,200,50,200,700,Color.RED,glowPaint,10,40);
             //draw the stars
@@ -278,34 +277,33 @@ public class GameView extends View {
             repeatStars();
             gen2 = generator.nextInt(pepe_diff);
             gen3 = generator.nextInt(185);
-            //rem = MainActivity.score%50;
-            //gen4 = generator.nextInt(6);
-            checkLevel();
-            checkEnemy();
-            checkPepeTime();
-            checkBossTime();
+            if(testTimer.isTime(2000)){
+                Log.d("spawntime","enemeySpawnInterval = "+enemySpawnInterval);
+            }
+            //checkLevel();
+            //checkEnemy();
+            //checkPepeTime();
+            //checkBossTime();
             //checkBoss2Time();
             //checkTurretTime();
             PepeBoss.setScreenW(screenW);
-            //whitePaint.setStrokeWidth(1*scale);
-            //canvas.drawPoint(200,200,whitePaint);
             player.update();
             canvas.drawBitmap(Assets.boltShip, player.getbX(), player.getbY(), null);
-
             //CODE TO BRING A COIN //STARTS HERE
-            if (coinTimer.isTime(16000)) {
+            if (coinTimer.isTime(16000)){
                 generateCoinPosition();
                 coinTimer.resetWaitFor();
                 lastx = genCoinX;
                 lasty = genCoinY;
             }
+//            canvas.drawText("bringBoss: "+bringBoss,300,200,paint);
+//            canvas.drawText("bringBoss2: "+bringBoss2,300,250,paint);
+//            canvas.drawText("boss1 wi: "+boss_wi,300,300,paint);
+//            canvas.drawText("boss2 health: "+boss2_wi,300,350,paint);
+//            canvas.drawText("boss1 health: "+bossship.health,300,400,paint);
 
             if (genCoinX == lastx || genCoinY == lasty) {
-                if (coinTimer.waitFor(2500)) {
-                    bringCoin = true;
-                } else {
-                    bringCoin = false;
-                }
+                bringCoin = coinTimer.waitFor(2500);
             }
             if (bringCoin) {
                 canvas.drawBitmap(Assets.coin, genCoinX, genCoinY, null);
@@ -362,14 +360,21 @@ public class GameView extends View {
                 Enemy e = (Enemy) enemies.get(j);
                 e.update();
                 canvas.drawBitmap(Assets.getEnShip(), e.geteX(), e.geteY(), null);
-                eItr = enemies.iterator();
+                //eItr = enemies.iterator();
+                if(!e.isVisible()){
+                    enemies.remove(j); //EXPERIMENTAL, works fine so far
+                }
+                /*
                 while (eItr.hasNext()) {
-                    d = (Enemy) eItr.next();
+                    d = (Enemy) eItr.next(); //old code that was working when ArrayLists were being used instead of lists
                     if (!d.isVisible()) {
                         eItr.remove();
                     }
                 }
+                */
             }
+            checkCollision();
+            checkPlayerEnemyCollision();
 
             for (int w = 0; w < bossProjectiles.size(); w++) {
                 BossProjectiles bp = (BossProjectiles) bossProjectiles.get(w);
@@ -379,14 +384,14 @@ public class GameView extends View {
                     bossProjectiles.remove(w);
                 }
             }
-            for (int w = 0; w < boss2Projectiles.size(); w++) {
-                BossProjectiles bp = (BossProjectiles) boss2Projectiles.get(w);
-                bp.update();
-                canvas.drawRect(bp.getR(), bossBulletPaint);
-                if (!bp.isVisible()) {
-                    boss2Projectiles.remove(w);
-                }
-            }
+//            for (int w = 0; w < boss2Projectiles.size(); w++) {
+  //              BossProjectiles bp = (BossProjectiles) boss2Projectiles.get(w);
+    //            bp.update();
+      //          canvas.drawRect(bp.getR(), bossBulletPaint);
+        //        if (!bp.isVisible()) {
+          //          boss2Projectiles.remove(w);
+            //    }
+            //}
             //SPAWN ENEMIES BY TIMER
             if (enemyTimer.isTime(enemySpawnInterval) && !bringBoss && !bringPepe && !bringBoss2) {
                 enemy.spawnEnemy();
@@ -394,32 +399,34 @@ public class GameView extends View {
 
             //if(explosionTimer.waitFor(20000)){
             //  canvas.drawBitmap(scaledExplosion1,500,250,null);
-            //}
+            //
 
             if (bringPepe) {
                 pepeboss.update();
                 pepeboss.follow();
-                canvas.drawBitmap(t.tempPepe, pepeboss.getpX(), pepeboss.getpY(), null);
-                canvas.drawBitmap(Assets.pepeHealthBar, (int) (2 * screenW / 3), (int) (screenH * 0.004), null);
-                canvas.drawRect((int) (2 * screenW / 3) + (3 * scale), (int) (screenH * 0.004) + (3 * scale), (2 * screenW / 3) + (3 * scale) + pepe_wi, (int) (screenH * 0.004) + (3 * scale) + pepe_he, greenPaint);
+                canvas.drawBitmap(TitleActivity.tempPepe, pepeboss.getpX(), pepeboss.getpY(), null);
+                canvas.drawBitmap(Assets.pepeHealthBar, (2 * screenW / 3f), (int) (screenH * 0.004), null);
+                canvas.drawRect((2 * screenW / 3f) + (3 * scale), (int) (screenH * 0.004) + (3 * scale), (2 * screenW / 3f) + (3 * scale) + pepe_wi, (int) (screenH * 0.004) + (3 * scale) + pepe_he, greenPaint);
             }
             if (bringBoss) {
                 bossship.update();
                 bossship.follow();
+                Log.d("boss","bringBoss is true");
                 canvas.drawBitmap(Assets.bossShip, bossship.getvX(), bossship.getvY(), null);
                 canvas.drawBitmap(Assets.bossHealthBar, (int) (screenW * 0.58), (int) (screenH * 0.004), null);
                 canvas.drawRect((int) (screenW * 0.58) + (3 * scale), (int) (screenH * 0.004) + (3 * scale), (int) (screenW * 0.58) + (3 * scale) + boss_wi, (int) (screenH * 0.004) + (3 * scale) + boss_he, bluePaint);
             }
             if (bringBoss2) {
-                //bossship2.update();
-                //bossship2.follow();
-                //canvas.drawBitmap(Assets.bossShip2, bossship2.getX(), bossship2.getY(), null);
+                Log.d("boss","bringBoss2 is true");
+                bossship2.update();
+                bossship2.follow();
+                canvas.drawBitmap(Assets.bossShip2, bossship2.getX(), bossship2.getY(), null);
                 canvas.drawBitmap(Assets.bossHealthBar, (int) (screenW * 0.58), (int) (screenH * 0.004), null);
                 canvas.drawRect((int) (screenW * 0.58) + (3 * scale), (int) (screenH * 0.004) + (3 * scale), (int) (screenW * 0.58) + (3 * scale) + boss2_wi, (int) (screenH * 0.004) + (3 * scale) + boss2_he, bluePaint);
             }
             if (TitleView.isBringTurret()) {
                 turretGun.matrix.reset();
-                turretGun.matrix.setTranslate(-Assets.turret.getHeight() / 2, -Assets.turret.getHeight() / 2);
+                turretGun.matrix.setTranslate(-Assets.turret.getHeight() / 2f, -Assets.turret.getHeight() / 2f);
                 turretGun.matrix.postRotate((float) turretGun.rotationAngleinDeg);
                 turretGun.matrix.postTranslate(turretGun.centerX, turretGun.centerY);
                 canvas.drawBitmap(Assets.turret, turretGun.matrix, null);
@@ -431,37 +438,24 @@ public class GameView extends View {
                 }
             }
 
-            gen = generator.nextInt(screenH - ((int) Assets.getEnShip().getWidth() / 2));
+            gen = generator.nextInt(screenH - (Assets.getEnShip().getWidth() / 2));
             t.tempPepe = Assets.pepeBoss;
 
             if (angry()) {
                 t.tempPepe = Assets.pepeHurt;
                 pepe_diff = 220;
             }
-            checkHighScore();
-            checkCollision();
-            checkPlayerEnemyCollision();
+//            checkHighScore();
+//            checkCollision();
+//            checkPlayerEnemyCollision();
 
             if (bringPepe) {
                 if (shouldPepeShoot() || pepeboss.getpY() == player.getbY()) {
                     pepeboss.shoot();
                 }
-                if (gen3 == 5 || gen3 == 30 || gen3 == 65) {
-                    okap = true;
-                } else {
-                    okap = false;
-                }
-                if (okap) {
-                    if (pepeboss.getpX() > (Assets.boltShip.getWidth() + 10)) {
-                        //pepeboss.specialAttack();
-                    } else {
-                        //pepeboss.goBack();
-                    }
-                }
-
-                checkPepeCollision();
-                checkPlayerPepeCollision();
-                checkBulletsCollision();
+//                checkPepeCollision();
+//                checkPlayerPepeCollision();
+//                checkBulletsCollision();
             }
             if (bringBoss) {
                 if (shouldBossShoot()) {
@@ -472,26 +466,22 @@ public class GameView extends View {
                         //bossship.specialAttack();
                     }
                 }
-                checkBossCollision();
-                checkPlayerBossCollision();
-                checkBulletsCollision();
-                checkTurretBulletCollision();
+//                checkBossCollision();
+//                checkPlayerBossCollision();
+//                checkBulletsCollision();
+//                checkTurretBulletCollision();
             }
             if (bringBoss2) {
 
                 if (shouldBoss2Shoot()) {
-                    //bossship2.shoot();
+                    bossship2.shoot();
                 }
-                if (gen3 == 30 || gen3 == 60 || gen3 == 90 || gen3 == 120 || gen3 == 150) {
-                   // if (bossship2.getX() < (Assets.boltShip.getWidth() + 10)) {
-                        //bossship2.specialAttack();
-                    //}
-                }
+
                 //checkBoss2Collision();
                 //checkPlayerBoss2Collision();
-                checkBulletsCollision();
-                checkTurretBulletCollision();
-                checkTurretCollision();
+//                checkBulletsCollision();
+//                checkTurretBulletCollision();
+//                checkTurretCollision();
             }
             if (mf < 30) {
                 mf++;
@@ -499,9 +489,9 @@ public class GameView extends View {
             if (mf == 1) {
                 turretDown = true;
             }
-            turretUpdate();
-            rotateTurret();
-            checkTurretBulletCollision();
+//            turretUpdate();
+//            rotateTurret();
+//            checkTurretBulletCollision();
 
             blastAnimation.drawAnimation(canvas,globalx,globaly,1);
             //resetHighscore();
@@ -516,47 +506,37 @@ public class GameView extends View {
             canvas.drawBitmap(Assets.healthBar, (int) (screenW * 0.06), (int) (screenH * 0.004), null);
             canvas.drawBitmap(Assets.pause, (float) (screenW * 0.018), (float) (screenH * 0.01), null);
             canvas.drawRect((int) (screenW * 0.06) + (3 * scale), (int) (screenH * 0.004) + (3 * scale), (int) (screenW * 0.06) + (3 * scale) + wi, (int) (screenH * 0.004) + (3 * scale) + he, redPaint);
-            //canvas.drawRect(100,100,200,200,pepeBulletPaint);
             //canvas.drawText("event down duration: " + eventDownDuration/1000 + " seconds",300,300,paint);
             canvas.drawText("HighScore: " + MainActivity.preferences.getInt("HighScore", 0), 20, (int) (screenH * 0.98), paint);
             canvas.drawText("Coins: " + coins, (float) (getScreenW() / 3), (float) (screenH * 0.98), paint);
-            //canvas.drawText("high1 "+TitleActivity.getHighScore(),(float)(getScreenW()/3),(float)(screenH * 0.20), paint);
-            //canvas.drawText("high2 "+TitleActivity.getHighScore1(),(float)(getScreenW()/3),(float)(screenH * 0.25), paint);
-            //canvas.drawText("high3 "+TitleActivity.getHighScore2(),(float)(getScreenW()/3),(float)(screenH * 0.30), paint);
-            //canvas.drawText("Potential High "+TitleActivity.preferences.getInt("potentialHighscore",0),(float)(getScreenW()/3),(float)(screenH * 0.35), paint);
+            //RELOAD
             if (reloading) {
                 canvas.drawText("Reloading", (float) (getScreenW() / 2), (float) (screenH * 0.98), paint);
             } else {
                 canvas.drawText("Clip: " + gunclip, (float) (getScreenW() / 2), (float) (screenH * 0.98), paint);
             }
-            //canvas.drawText("Boss 2 x: " + boss2.getX() + " boss2 speedX="+boss2.getSpeedX(), screenW / 2, (float) (screenH * 0.2), paint);
-            //canvas.drawText("game paused: " + gamePaused,300,300,paint);
-            //canvas.drawRect(350,350,450,450,paint);
-            //canvas.drawText("oldW"+ oldW,100,450,paint);
-            //canvas.drawText("oldH"+ oldH,100,550,paint);
-            //canvas.drawText("explosionTimer: " + explosionTimer.waitFor(20000,12),300,500,paint);
-            //canvas.drawText("turret angle: " + turretGun.rotationAngleinDeg, 300,400,paint);
-            //canvas.drawBitmap(anim.getImage(),200,200,null);
-            //resetHighscore();
-            //canvas.drawText("pointer count: " + pointerCount,200,200,paint);
-            //canvas.drawText("test_var: "+testvar,200,250,paint);
-            //checkPause();
-            checkEnd();
             if (gunclip <= 0) {
                 reload();
             }
-            //if(reloadButtonPressed){
-            //  reload();
-            // }
+            checkEnd();
             delTime = System.currentTimeMillis() - startTime;
-            //float FPS = 1000/delTime;
-            //canvas.drawText("FPS: "+FPS,(float)(getScreenW()*0.75f),(float)(screenH * 0.99), paint);
-            //rotateTurret();
+            checkBossCollision();
+            checkPlayerBossCollision();
+            checkPlayerBoss2Collision();
+            checkPepeCollision();
+            checkPlayerPepeCollision();
+            checkBulletsCollision();
             invalidate();
+
+
         } else if (gameEnded) {
+            synchronized (task1.mPauseLock) {
+                //task1.mFinished = true;
+                task1.mPaused = true;
+            }
             canvas.drawARGB(255, 0, 0, 50);
             canvas.drawPoints(genStars, paint);
-            canvas.drawText("GAME OVER", screenW / 2, (float) (screenH * 0.2), whitePaint);
+            canvas.drawText("GAME OVER", screenW / 2f, (float) (screenH * 0.2), whitePaint);
             editor.putInt("prevHighScore", MainActivity.getHighScore());
             /*the methods stringInNum, numInString, encrypt, decrypt are all static and declared in Assets Class.
             * The next 5 lines after this comment are explained:
@@ -565,32 +545,42 @@ public class GameView extends View {
             * line 2 adds the coins from last game session to totalCoins
             * line 3 converts the totalCoins int into a string called sessionCoins
             * line 4/5 encrypts the sessionCoins string and saves it in sharedPrefs, the key for the sessionCoins is also encrypted.*/
-            t.totalCoins = Assets.stringToNum(Assets.decrypt((MainActivity.preferences.getString(Assets.encrypt("TotalCoins"),Assets.encrypt("0")))));
+//            TitleActivity.totalCoins = Assets.stringToNum(Assets.decrypt((MainActivity.preferences
+//                    .getString(Assets.encrypt("TotalCoins"),Assets.encrypt("0")))));
+            TitleActivity.totalCoins = TitleActivity.preferences.getInt("TotalCoins",0);
             /*line 1.5 ---> */ if(testone == 0) {
-                t.totalCoins = t.totalCoins + coins;
+                TitleActivity.totalCoins = TitleActivity.totalCoins + coins;
             }
             testone += 1;
-            sessionCoins = Assets.numToString(t.totalCoins);
-            editor.putString(Assets.encrypt("TotalCoins"),Assets.encrypt(sessionCoins));
+            sessionCoins = TitleActivity.totalCoins;
+            //editor.putString(Assets.encrypt("TotalCoins"),Assets.encrypt(sessionCoins));
+            editor.putInt("TotalCoins",sessionCoins);
             editor.apply();
             editor.commit();
-            //canvas.drawText("game running: " + gameRunning,400,testone,whitePaintMedium);
+            //canvas.drawText("testone: " + testone,600,600,whitePaintMedium);
             //canvas.drawText("Potential High " + TitleActivity.preferences.getInt("potentialHighscore", 0), (float) (getScreenW() / 3), (float) (screenH * 0.35), paint);
-            canvas.drawText("Play Again", (screenW / 2), (float) (screenH * 0.48f), tp);
-            canvas.drawText("Quit to Main Menu", (float) (screenW / 2f), (float) (screenH * 0.62f), tp);
+            canvas.drawText("Play Again", (screenW / 2f), (screenH * 0.48f), tp);
+            canvas.drawText("Quit to Main Menu", (screenW / 2f), (screenH * 0.62f), tp);
+            canvas.drawText("Watch ad to revive",(screenW / 2f),(screenH * 0.76f),tp);
             canvas.drawText("Score: " + MainActivity.score, (float) (screenW * 0.06), (float) (screenH * 0.08), paint);
             canvas.drawText("HighScore: " + MainActivity.preferences.getInt("prevHighScore", 0), 20, (int) (screenH * 0.98), paint);
             canvas.drawText("Coins: " + coins, (float) (getScreenW() / 3), (float) (screenH * 0.98), paint);
-            canvas.drawText("Total Coins: "+Assets.decrypt(MainActivity.preferences.getString(Assets.encrypt("TotalCoins"),Assets.encrypt("0"))), (float) (getScreenW() / 2), (float) (screenH * 0.98), paint);
+            canvas.drawText("Total Coins: "+MainActivity.preferences.getInt("TotalCoins",0), (float) (getScreenW()/2), (float) (screenH * 0.98), paint);
+
+            invalidate();
         } else if (gamePaused) {
+            synchronized (task1.mPauseLock) {
+                //task1.mFinished = true;
+                task1.mPaused = true;
+            }
             canvas.drawARGB(255, 0, 0, 50);
             canvas.drawPoints(genStars, paint);
-            canvas.drawText("GAME PAUSED", screenW / 2, (float) (screenH * 0.2), whitePaint);
+            canvas.drawText("GAME PAUSED", screenW / 2f, (float) (screenH * 0.2), whitePaint);
             canvas.drawText("Coins: " + coins, (float) (getScreenW() / 3), (float) (screenH * 0.98), paint);
             canvas.drawText("Score: " + MainActivity.score, (float) (screenW * 0.06), (float) (screenH * 0.08), paint);
             canvas.drawText("HighScore: " + MainActivity.preferences.getInt("prevHighScore", 0), 20, (int) (screenH * 0.98), paint);
             canvas.drawText("Clip: " + gunclip, (float) (getScreenW() / 2), (float) (screenH * 0.98), paint);
-            canvas.drawText("Coins and progress will be lost if you quit to main menu",screenW/2,(float)(screenH*0.7),whitePaintMedium);
+            canvas.drawText("Coins and progress will be lost if you quit to main menu",screenW/2f,(float)(screenH*0.7),whitePaintMedium);
             /*
             canvas.drawRect((float)((screenW/2f)-(resumeBounds.width()/2f)),(float)((screenH*0.48)-(resumeBounds.height())),
                     (float)((screenW/2f)-(resumeBounds.width()/2f)+(resumeBounds.width())),(float)((screenH*0.48)),
@@ -599,15 +589,14 @@ public class GameView extends View {
                     (float)((screenW/2f)-(quitBounds.width()/2f)+(quitBounds.width())),(float)((screenH*0.61)),
                     redPaint);
             */
-            canvas.drawText("Resume", (float) (screenW / 2f), (float) (screenH * 0.48), tp);
-            canvas.drawText("Quit to Main Menu", (float) (screenW / 2f), (float) (screenH * 0.62), tp);
+            canvas.drawText("Resume", (screenW / 2f), (float) (screenH * 0.48), tp);
+            canvas.drawText("Quit to Main Menu", (screenW / 2f), (float) (screenH * 0.62), tp);
             //canvas.drawRect(200,200,200+resumeBounds.width(),200+resumeBounds.height(),redPaint);
             //canvas.drawText("Resume Game",200,200,tp);
             //canvas.drawBitmap(Assets.right,(float)((screenW/2)-(Assets.right.getWidth()/2)),(float)(screenH*0.4),null);
             //canvas.drawText("Score: " + MainActivity.score, screenW / 2, (float) (screenH * 0.7), whitePaint);
         }
     }
-
     public void generateCoinPosition() {
         genCoinX = generator.nextInt(screenW - Assets.coin.getWidth());
         genCoinY = generator.nextInt(screenH - Assets.coin.getHeight());
@@ -652,7 +641,7 @@ public class GameView extends View {
         }
     }
     public void checkCollision() {//checks if player bullets hit enemies
-        for (Projectiles p : player.getProjectiles())
+        for (Projectiles p :  player.getProjectiles())
             for (Enemy e : enemy.getEnemies()) {
                 if (p.getR().intersect(e.getEnemyRect())) {
                     p.setVisible(false);
@@ -698,6 +687,7 @@ public class GameView extends View {
                 Assets.sp.play(Assets.invaderExplode,currentSoundVolume, currentSoundVolume, 1, 0, 1);
                 if (wi != 0) {
                     wi -= 25 * scale;
+                    Log.d("new1","code ran, Wi = "+wi);
                 }
                 if (wi < 0) {
                     wi = 0;
@@ -705,7 +695,7 @@ public class GameView extends View {
             }
         }
     }
-    public void checkEnd() {
+    public void checkEnd(){
         if (wi == 0) {
             gameEnded = true;
             gameRunning = false;
@@ -714,7 +704,7 @@ public class GameView extends View {
     }
     public void checkPlayerPepeCollision() {//checks if pepe bullets hit the player
         for (PepeProjectiles qw : pepeboss.getPepeProjectiles()) {
-            if (qw.getR().intersect(player.getPlayerRect())) {
+            if (qw.getR().intersect(player.getPlayerRect())){
                 qw.setVisible(false);
                 //MainActivity.score -= 2;
                 if (wi > 0) {
@@ -725,7 +715,7 @@ public class GameView extends View {
                 }
             }
         }
-    }
+    } //okay
     public void checkPlayerBossCollision() {//checks if BossShip bullets hit the player
         for (BossProjectiles qe : bossship.getBossProjectiles()) {
             if (qe.getR().intersect(player.getPlayerRect())) {
@@ -739,9 +729,9 @@ public class GameView extends View {
                 }
             }
         }
-    }
+    } //okay
     public void checkPlayerBoss2Collision() {//checks if BossShip2 bullets hit the player
-        /*for (BossProjectiles ql : bossship2.getBoss2Projectiles()) {
+        for (BossProjectiles ql : bossship2.getBoss2Projectiles()) {
             if (ql.getR().intersect(player.getPlayerRect())) {
                 ql.setVisible(false);
                 //MainActivity.score -= 2;
@@ -753,8 +743,7 @@ public class GameView extends View {
                 }
             }
         }
-        */
-    }
+    } //okay
     public void checkBulletsCollision() {//checks if player bullets collide with pepe bullets or with BossShip bullets
         for (Projectiles p : player.getProjectiles())
             for (PepeProjectiles pp : pepeboss.getPepeProjectiles()) {
@@ -770,7 +759,7 @@ public class GameView extends View {
                     bp.setVisible(false);
                 }
             }
-            /*
+
         for (BossProjectiles bp2 : bossship2.getBoss2Projectiles())
             for (Projectiles p : player.getProjectiles()) {
                 if (p.getR().intersect(bp2.getR())) {
@@ -778,8 +767,8 @@ public class GameView extends View {
                     bp2.setVisible(false);
                 }
             }
-            */
-    }
+
+    } //okay
     public void checkTurretBulletCollision() {
         for (TurretProjectiles tp : turretGun.getTurretProjectiles())
             for (Enemy e : enemy.getEnemies()) {
@@ -800,19 +789,28 @@ public class GameView extends View {
             }
         }
     }
+    public void checkTurretCollisionTEST(){
+        for(Iterator enemyIterator = enemies.iterator(); enemyIterator.hasNext();){
+            Enemy e = (Enemy) enemyIterator.next();
+            if(e.getEnemyRect().intersect(turretGun.gettR())){
+                e.setVisible(false);
+                turretGun.health -= 1;
+            }
+        }
+    }
     public void checkPepeCollision() {//checks if player bullets hit pepe
         for (Projectiles pr : player.getProjectiles()) {
             if (pr.getR().intersect(pepeboss.getPepeRect())) {
                 t.tempPepe = Assets.pepeHurt;
                 pepeboss.health -= 1;
                 MainActivity.score += 1;
-                if (pepe_wi != 0) {
+                if (pepe_wi != 0 ) {
                     pepe_wi -= 1.96f * scale;
                 }
                 pr.setVisible(false);
             }
         }
-    }
+    } //okay
     public void checkBossCollision() {//checks if player bullets hit BossShip
         for (Projectiles pr : player.getProjectiles()) {
             if (pr.getR().intersect(bossship.getR())) {
@@ -824,7 +822,7 @@ public class GameView extends View {
                 pr.setVisible(false);
             }
         }
-    }
+    } //okay-
     public void checkBoss2Collision() {//checks if player bullets hit BossShip
         /*for (Projectiles pl : player.getProjectiles()) {
             if (pl.getR().intersect(bossship2.getR())) {
@@ -847,15 +845,15 @@ public class GameView extends View {
         }//else{bringPepe = false;}
     }
     public void checkBossTime() {//checks if it is time to bring BossShip
-        if (MainActivity.score > 850 && bossship.health != 0) {
+        if (MainActivity.score > 1700 && bossship.health > 0 ){
             bringBoss = true;
         }
     }
     public void checkBoss2Time() {//checks if it is time to bring BossShip
-        /*if (MainActivity.score > 1500 && bossship2.getHealth() != 0) {
+        if (MainActivity.score > 3000 && bossship2.getHealth() > 0) {
             bringBoss2 = true;
         }
-        */
+
     }
     public void checkTurretTime() {//checks if is time to bring turretGun
         if (turretButtonPressed && turretGun.health != 0) {
@@ -899,19 +897,19 @@ public class GameView extends View {
     public void checkLevel() {
         if (MainActivity.score < 500) {
             ennum = 0;
-        } else if (MainActivity.score > 500 && MainActivity.score < 1000) {
+        } else if (MainActivity.score > 500 && MainActivity.score < 1700) {
             ennum = 1;
             starSpeed = 7;
             enemySpawnInterval = 700;
-        } else if (MainActivity.score > 1000 && MainActivity.score < 1500) {
+        } else if (MainActivity.score > 1700 && MainActivity.score < 2700){
             ennum = 2;
             starSpeed = 8;
             enemySpawnInterval = 675;
-        } else if (MainActivity.score > 1500 && MainActivity.score < 2000) {
+        } else if (MainActivity.score > 2700 && MainActivity.score < 3500){
             ennum = 3;
             starSpeed = 9;
             enemySpawnInterval = 650;
-        } else if (MainActivity.score > 2000) {
+        } else if (MainActivity.score > 3500){
             ennum = 4;
             starSpeed = 10;
             enemySpawnInterval = 625;
@@ -1067,16 +1065,8 @@ public class GameView extends View {
             case MotionEvent.ACTION_DOWN:
                 if(gameRunning) {
                     if (X < screenW / 2) {
-                        if (Y > (screenH / 2)) {
-                            moveDown = true;
-                        } else {
-                            moveDown = false;
-                        }
-                        if (Y < (screenH / 2)) {
-                            moveUp = true;
-                        } else {
-                            moveUp = false;
-                        }
+                        moveDown = Y > (screenH / 2);
+                        moveUp = Y < (screenH / 2);
                     }
                     if(event.getActionIndex() == 0 && gameRunning){
                         if(event.getX(0) > screenW/2  && gunclip > 0 && !reloading){
@@ -1089,16 +1079,8 @@ public class GameView extends View {
             case MotionEvent.ACTION_MOVE:
                 if(gameRunning) {
                     if (X < screenW / 2) {
-                        if (Y > (screenH / 2)) {
-                            moveDown = true;
-                        } else {
-                            moveDown = false;
-                        }
-                        if (Y < (screenH / 2)) {
-                            moveUp = true;
-                        } else {
-                            moveUp = false;
-                        }
+                        moveDown = Y > (screenH / 2);
+                        moveUp = Y < (screenH / 2);
                     }
                 }
                 break;
@@ -1126,8 +1108,8 @@ public class GameView extends View {
                     //EXPERIMENTAL CODE TO RESTART THIS ACTIVITY: The play again button
                     gameEnded = false;
                     init();
-                    pepeboss.init();
-                    bossship.init();
+                    //pepeboss.init();
+                    //bossship.init();
                     //bossship2.init();
                     MainActivity.preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
                     SharedPreferences.Editor editor = MainActivity.preferences.edit();
@@ -1138,6 +1120,11 @@ public class GameView extends View {
                 if (gameEnded && quitRect.contains((int)X,(int)Y)){
                     quit();
                 }
+                if (gameEnded && watchAdRect.contains((int)X,(int)Y)){
+                    Assets.calledBy = "gameview";
+                    mainActivity.showAd();
+                    //call revive() method in "onUnityAdsFinish()
+                }
                 if (gameRunning) {
                     moveDown = false;
                     moveUp = false;
@@ -1146,7 +1133,7 @@ public class GameView extends View {
                 break;
             case MotionEvent.ACTION_POINTER_UP:
                 if (event.getActionIndex() > 0 && gameRunning){
-                    if(gameRunning && bringCoin && event.getX(1) > genCoinX && event.getX(1)< genCoinX+Assets.coin.getWidth() && event.getY(1) > genCoinY && event.getY(1) < genCoinY+Assets.coin.getHeight()){
+                    if(bringCoin && event.getX(1) > genCoinX && event.getX(1)< genCoinX+Assets.coin.getWidth() && event.getY(1) > genCoinY && event.getY(1) < genCoinY+Assets.coin.getHeight()){
                         coins += 1;
                         Assets.sp.play(Assets.coinPickup,currentMusicVolume,currentMusicVolume,1,0,1);
                         bringCoin = false;
@@ -1165,6 +1152,138 @@ public class GameView extends View {
         invalidate();
         return true;
     }
+
+
+    //public int getScreenW() {return screenW;}
+    //public void setScreenW(int screenW) {this.screenW = screenW;}
+    //public int getScreenH() {return screenH;}
+    //public void setScreenH(int screenH) {this.screenH = screenH;}
+
+    public void init(){
+        myContext = getContext();
+        MainActivity.score = 0;
+        coins = 0;
+        testone = 0;
+        gunclip = 60;
+        reloading = false;
+        scale = getContext().getResources().getDisplayMetrics().density;
+        screenW = MainActivity.getsX();
+        screenH = MainActivity.getsY();
+        TitleActivity.preferences.edit().putInt("potentialHighscore",0).apply();
+        wi=220*scale;
+        he=3*scale;
+        pepe_wi=196*scale;
+        pepe_he=5*scale;
+        boss_wi=244*scale;
+        boss_he=5*scale;
+        starSpeed = 6;
+        player = new Boltship();
+        enemy = new Enemy(0,0);
+        densityDpi = getContext().getResources().getDisplayMetrics().densityDpi;
+        //Log.d(TAG, "densityDPI: " + densityDpi);
+        t.tempPepe = Assets.pepeBoss;
+        projectiles = player.getProjectiles();
+        enemies = enemy.getEnemies();
+        pepeboss = new PepeBoss((MainActivity.getsX()- Assets.pepeBoss.getWidth()),0);
+        bossship = new BossShip((MainActivity.getsX()),0);
+        bossship2 = new Boss2(MainActivity.getsX(),0);
+        pepeboss.init();
+        bossship.init();
+        bossship2.init();
+        turretGun = new Turret(0,0);
+        pepeProjectiles = pepeboss.getPepeProjectiles();
+        bossProjectiles = bossship.getBossProjectiles();
+        boss2Projectiles = bossship2.getBoss2Projectiles();
+        turretProjectiles = turretGun.getTurretProjectiles();
+        d = new Enemy(0,0);
+        s = new Projectiles(0,0);
+        enemyTimer = new Timer();
+        enemySpawnInterval = 750;
+    }
+
+    public void revive(){
+        Log.d("revive","revived");
+        gameRunning = true;
+        gameEnded = false;
+        gamePaused = false;
+        task1.mPaused = false;
+        coins = 0;
+        //player = new Boltship();
+        //projectiles = player.getProjectiles();
+        wi=110*scale;
+        he=3*scale;
+    }
+    void drawLineAsNeon(Canvas canvas, float x1,float y1, float x2, float y2, int Color,Paint paint, int tubeWidth, int glowWidth){
+        paint.setAntiAlias(true);
+        paint.setColor(Color);
+        paint.setStrokeCap(Paint.Cap.ROUND);
+        paint.setStrokeWidth(glowWidth);
+        blurMaskFilter = new BlurMaskFilter(glowWidth,BlurMaskFilter.Blur.NORMAL);
+        paint.setMaskFilter(blurMaskFilter);
+        paint.setAlpha(255);
+        canvas.drawLine(x1,y1,x2,y2,paint);
+
+        paint.setAlpha(255);
+        paint.setStrokeWidth(tubeWidth);
+        bmf2 = new BlurMaskFilter(tubeWidth, BlurMaskFilter.Blur.SOLID);
+        paint.setMaskFilter(bmf2);
+        canvas.drawLine(x1,y1,x2,y2,paint);
+    }
+
+    class Tasks extends Thread implements Runnable{
+        final Object mPauseLock;
+        boolean mPaused;
+        boolean mFinished;
+
+        public Tasks(){
+            mPauseLock = new Object();
+            mPaused = false;
+            mFinished = false;
+        }
+        @Override
+        public void run() {
+            while (!mFinished){
+                checkLevel();
+                checkEnemy();
+                checkPepeTime();
+                checkBossTime();
+                checkBoss2Time();
+                //checkTurretBulletCollision();
+                //checkTurretCollision();
+                checkHighScore();
+                synchronized (mPauseLock) {
+                    while (mPaused) {
+                        try {
+                            if(gameEnded) {
+                                Log.d("gameState", "Game Ended");
+                            }
+                            if(gamePaused){
+                                Log.d("gameState", "Game Paused");
+                            }
+                            mPauseLock.wait();
+                        } catch (InterruptedException e) {
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     //EVERYTHING OTHER THAN BITMAPS AND THEIR FLOATS
     public static boolean isMoveUp() {
@@ -1266,68 +1385,6 @@ public class GameView extends View {
             stringRect.set(stringX,stringY-stringBounds.height(),stringX+stringBounds.width(),stringY);
         }
         return stringRect;
-    }
-
-    //public int getScreenW() {return screenW;}
-    //public void setScreenW(int screenW) {this.screenW = screenW;}
-    //public int getScreenH() {return screenH;}
-    //public void setScreenH(int screenH) {this.screenH = screenH;}
-
-    public void init(){
-        myContext = getContext();
-        MainActivity.score = 0;
-        coins = 0;
-        testone = 0;
-        i=1;
-        gunclip = 60;
-        scale = getContext().getResources().getDisplayMetrics().density;
-        screenW = MainActivity.getsX();
-        screenH = MainActivity.getsY();
-        TitleActivity.preferences.edit().putInt("potentialHighscore",0).apply();
-        wi=220*scale;
-        he=3*scale;
-        pepe_wi=196*scale;
-        pepe_he=5*scale;
-        boss_wi=244*scale;
-        boss_he=5*scale;
-        starSpeed = 6;
-        player = new Boltship();
-        enemy = new Enemy(0,0);
-        densityDpi = getContext().getResources().getDisplayMetrics().densityDpi;
-        //Log.d(TAG, "densityDPI: " + densityDpi);
-        t.tempPepe = Assets.pepeBoss;
-        projectiles = player.getProjectiles();
-        enemies = enemy.getEnemies();
-        pepeboss = new PepeBoss((int)(MainActivity.getsX()- Assets.pepeBoss.getWidth()),0);
-        bossship = new BossShip((int)(MainActivity.getsX()),0);
-        //bossship2 = new Boss2(MainActivity.getsX(),0);
-        pepeboss.init();
-        bossship.init();
-        //bossship2.init();
-        turretGun = new Turret(0,0);
-        pepeProjectiles = pepeboss.getPepeProjectiles();
-        bossProjectiles = bossship.getBossProjectiles();
-        //boss2Projectiles = bossship2.getBoss2Projectiles();
-        turretProjectiles = turretGun.getTurretProjectiles();
-        d = new Enemy(0,0);
-        s = new Projectiles(0,0);
-        enemyTimer = new Timer();
-    }
-    void drawLineAsNeon(Canvas canvas, float x1,float y1, float x2, float y2, int Color,Paint paint, int tubeWidth, int glowWidth){
-        paint.setAntiAlias(true);
-        paint.setColor(Color);
-        paint.setStrokeCap(Paint.Cap.ROUND);
-        paint.setStrokeWidth(glowWidth);
-        blurMaskFilter = new BlurMaskFilter(glowWidth,BlurMaskFilter.Blur.NORMAL);
-        paint.setMaskFilter(blurMaskFilter);
-        paint.setAlpha(255);
-        canvas.drawLine(x1,y1,x2,y2,paint);
-
-        paint.setAlpha(255);
-        paint.setStrokeWidth(tubeWidth);
-        bmf2 = new BlurMaskFilter(tubeWidth, BlurMaskFilter.Blur.SOLID);
-        paint.setMaskFilter(bmf2);
-        canvas.drawLine(x1,y1,x2,y2,paint);
     }
 
 }

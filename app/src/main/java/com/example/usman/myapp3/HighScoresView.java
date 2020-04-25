@@ -10,11 +10,18 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.text.TextPaint;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
+
+import com.github.jinatonic.confetti.ConfettiManager;
+import com.github.jinatonic.confetti.ConfettiSource;
+import com.github.jinatonic.confetti.ConfettoGenerator;
+import com.github.jinatonic.confetti.confetto.Confetto;
+
 import java.util.Random;
 
-import static com.example.usman.myapp3.TitleActivity.sW;
 import static com.example.usman.myapp3.TitleView.SCALE_CONST;
 import static com.example.usman.myapp3.TitleView.scale;
 
@@ -25,6 +32,7 @@ public class HighScoresView extends View{
     Paint paint;
     FramesAnimation blastAnimation;
     FramesAnimation saberAnimation;
+    float[] values;
 
     //ANIMATION CODE
     long fps;
@@ -64,6 +72,7 @@ public class HighScoresView extends View{
     private int frameLengthInMilliseconds = 100;
     private int x=20;
     private int y =20;
+    ConfettoGenerator confettoGenerator;
 
 
     // A rectangle to define an area of the
@@ -124,6 +133,13 @@ public class HighScoresView extends View{
         // We need to do this because Android automatically
         // scales bitmaps based on screen density
         bitmapBob = Bitmap.createScaledBitmap(bitmapBob, (int)(frameWidth * frameCount), (int)frameHeight, false);
+        confettoGenerator = new ConfettoGenerator() {
+            @Override
+            public Confetto generateConfetto(Random random) {
+                return new Particles(Assets.particle_red);
+                //return new BitmapConfetto(particle_blue);
+            }
+        };
 
     }
 
@@ -131,9 +147,9 @@ public class HighScoresView extends View{
     protected void onDraw(Canvas canvas){
         super.onDraw(canvas);
         long startFrameTime = System.currentTimeMillis();
-        canvas.drawRGB(45,0,45);
+        canvas.drawRGB(0,0,0);
         canvas.drawText("ANIMATION TESTS",getWidth()/2,(float)(getHeight()*0.15),tp);
-
+        //canvas.drawText("tm 3 translate x: "+ values[2],)
         //ANIMATION CODE
 
 
@@ -146,14 +162,15 @@ public class HighScoresView extends View{
 
         // Draw bob at bobXPosition, 200 pixels
         //canvas.drawBitmap(bitmapBob, bobXPosition, 200, paint);
-        blastAnimation.drawAnimation(canvas,100,470,3);
+        blastAnimation.drawAnimation(canvas,100,470,1);
         canvas.drawText("animation counter: "+blastAnimation.animationCounter,200,300,paint);
         canvas.drawText("all frames of all cycles:"+(blastAnimation.animationCycles*blastAnimation.totalFrames), 200,350,paint);
         //canvas.drawText("current frame index: "+blastAnimation.currentFrameIndex,200,400,paint);
-        canvas.drawText("x: "+x,200,450,paint);
-        canvas.drawText("y: "+y,400,450,paint);
+        canvas.drawText("x: "+x,200,395,paint);
+        canvas.drawText("y: "+y,200,440,paint);
         saberAnimation.drawAnimation(canvas,400,500,1);
-        canvas.drawBitmap(Assets.boltShip,376,532,null); //offset: 400-376=24 , 532-500=32
+        canvas.drawBitmap(Assets.boltShip,376,532,null); //offset for saber: 400-376=24 , 532-500=32
+                                                                            //experimental offset for particles: 378, 546
         //blastAnimation.drawAnimation(canvas,450,450,1);
 
         whereToDraw.set((int)bobXPosition,0,(int)bobXPosition + frameWidth, frameHeight);
@@ -176,6 +193,16 @@ public class HighScoresView extends View{
             saberAnimation.animate();
             blastAnimation.animate();
         }
+    }
+    public ConfettiManager animateConfetti(Context context, ConfettoGenerator confettoGenerator, int confettiX, int confettiY, ViewGroup parentView){
+        Log.d("viewgroup","ViewGroup in highscoresView: "+parentView);
+        return new ConfettiManager(context,confettoGenerator,new ConfettiSource(confettiX,confettiY), parentView)
+                .setEmissionRate(29)
+                .setVelocityX(-80)
+                .setVelocityY(0,38)
+                .setEmissionDuration(600)
+                .setTTL(800)
+                .animate();
     }
 
     public void getCurrentFrame(){
@@ -208,11 +235,17 @@ public class HighScoresView extends View{
                 isMoving = true;
                 break;
             case MotionEvent.ACTION_UP:
+                animateConfetti(getContext(),confettoGenerator,378,546,(ViewGroup) this.getParent().getParent());
                 isMoving = false;
                 break;
             case MotionEvent.ACTION_MOVE:
                 x = X;
                 y = Y;
+
+                //.getParent() is
+                //used twice since doing it first time only returns the ViewFlipper object, but doing it again returns the proper
+                //parent activity class, this is required here and not in titleview because this Highscores view is inside a ViewFlipper
+                //unlike title view, which is just a regular view.
         }
         invalidate();
         return true;

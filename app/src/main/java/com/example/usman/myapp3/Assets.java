@@ -18,38 +18,39 @@ public class Assets {
             explosion12,pepeHurt,healthBar,pepeHealthBar,bossHealthBar,tempPepe,enShip,shield,shieldButton,title,
             newTitle,right,pause,logo,soundOn,soundOff,saber1,saber2,saber3,saber4,saber5,
             saber6,saber7,saber8,slider,sliderbolt,blackLogo,back,next,previous,buttonOn,buttonOff,storeTab,storeTabSelect,
-    storeTabReverse,storeTabSelectReverse;
-    public static Typeface tf,tf1;
-    public static int counter = 0;
+    storeTabReverse,storeTabSelectReverse,storeTabReverseBig,storeTabSelectReverseBig,next1,previous1,tm2,tm3,tm4,tm5,tm6,tm7,
+            particle_blue,particle_red;
+    static Typeface tf,tf1;
+    static int counter = 0;
     //public static Bitmap [] asteroids = new Bitmap[60];
-    public static int playerShoot,invaderExplode,coinPickup,playerShoot2;
-    public static SoundPool sp;
-    public static MediaPlayer mp;
+    static int playerShoot,invaderExplode,coinPickup,playerShoot2;
+    static String calledBy = "none";
+    static SoundPool sp;
+    static MediaPlayer mp;
     //145 boxes NICORIL = 20,000 Rs
     //public static MediaPlayer mp;
 
 
-    protected static void loadFonts(Context context){
+    static void loadFonts(Context context){
         tf = Typeface.createFromAsset(context.getAssets(),"fonts/Hermes.otf");
         tf1 = Typeface.createFromAsset(context.getAssets(), "fonts/Noise.ttf");
     }
 
-    protected static String numToString(int input){
+    static String numToString(int input){
         return Integer.toString(input);
-
     }
-    protected static int stringToNum(String input) {
+    static int stringToNum(String input) {
         return Integer.parseInt(input);
     }
-    protected static String encrypt(String input) {
-        // This is base64 encoding, which is not an encryption
+    static String encrypt(String input) {
+         //This is base64 encoding, which is not an encryption
         return Base64.encodeToString(input.getBytes(), Base64.DEFAULT);
     }
-    protected static String decrypt(String input) {
+    static String decrypt(String input) {
         return new String(Base64.decode(input, Base64.DEFAULT));
     }
 
-    protected static void loadBitmaps(Resources res){
+    static void loadBitmaps(Resources res){
         slider = BitmapFactory.decodeResource(res,R.drawable.slider);
         sliderbolt = BitmapFactory.decodeResource(res,R.drawable.sliderbolt);
         logo = BitmapFactory.decodeResource(res,R.drawable.logo_white_small);
@@ -102,16 +103,26 @@ public class Assets {
         back = BitmapFactory.decodeResource(res,R.drawable.back);
         next = BitmapFactory.decodeResource(res,R.drawable.next);
         previous = BitmapFactory.decodeResource(res,R.drawable.previous);
-        //buttonOn = BitmapFactory.decodeResource(res, R.drawable.button1);
-        //buttonOff = BitmapFactory.decodeResource(res, R.drawable.button2);
+        next1 = BitmapFactory.decodeResource(res, R.drawable.next1);
+        previous1 = BitmapFactory.decodeResource(res, R.drawable.previous1);
         storeTab = BitmapFactory.decodeResource(res, R.drawable.storetab);
         storeTabSelect = BitmapFactory.decodeResource(res, R.drawable.storetab_select);
         storeTabReverse = BitmapFactory.decodeResource(res, R.drawable.storetab_reverse);
-        storeTabSelectReverse = BitmapFactory.decodeResource(res, R.drawable.storetabselect_reverse);
+        storeTabSelectReverse = BitmapFactory.decodeResource(res, R.drawable.storetab_select_reverse);
+        storeTabSelectReverseBig = BitmapFactory.decodeResource(res, R.drawable.storetab_select_reverse_big);
+        storeTabReverseBig = BitmapFactory.decodeResource(res, R.drawable.storetab_reverse_big);
+        tm2 = BitmapFactory.decodeResource(res, R.drawable.tm2);
+        tm3 = BitmapFactory.decodeResource(res, R.drawable.tm3);
+        tm4 = BitmapFactory.decodeResource(res, R.drawable.tm4);
+        tm5 = BitmapFactory.decodeResource(res, R.drawable.tm5);
+        tm6 = BitmapFactory.decodeResource(res, R.drawable.tm6);
+        tm7 = BitmapFactory.decodeResource(res, R.drawable.tm7);
+        particle_blue = BitmapFactory.decodeResource(res, R.drawable.particle_blue);
+        particle_red = BitmapFactory.decodeResource(res, R.drawable.particle_red);
         tempPepe = pepeBoss;
     }
 
-    protected static void loadSounds(Context context){
+     static void loadSounds(Context context){
         sp = new SoundPool(5, AudioManager.STREAM_MUSIC,0);
         mp = new MediaPlayer();
         mp = MediaPlayer.create(context,R.raw.background_music);
@@ -120,15 +131,16 @@ public class Assets {
         coinPickup = sp.load(context,R.raw.coinpickup,3);
         playerShoot2 = sp.load(context,R.raw.playershoot2,4);
     }
-    protected static float manageVolume(float volumeSliderValue){
+
+     static float manageVolume(float volumeSliderValue){
         return (float)(1-(Math.log(TitleActivity.TOTAL_NUMBER_OF_STEPS-volumeSliderValue)/Math.log(TitleActivity.TOTAL_NUMBER_OF_STEPS)));
     }
 
-    public static Bitmap getEnShip() {
+    static Bitmap getEnShip() {
         return enShip;
     }
 
-    public static void setEnShip(Bitmap enShip) {
+    static void setEnShip(Bitmap enShip) {
         Assets.enShip = enShip;
     }
 

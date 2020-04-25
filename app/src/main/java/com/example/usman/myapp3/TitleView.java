@@ -8,11 +8,16 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
-import android.graphics.Typeface;
 import android.text.TextPaint;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.Toast;
+import android.view.ViewGroup;
+
+import com.github.jinatonic.confetti.ConfettiManager;
+import com.github.jinatonic.confetti.ConfettiSource;
+import com.github.jinatonic.confetti.ConfettoGenerator;
+import com.github.jinatonic.confetti.confetto.Confetto;
 
 import java.util.Random;
 
@@ -34,6 +39,7 @@ public class TitleView extends View {
     public static float SCALE_CONST;
     String title="BOLT CHRONICLES",play = "PLAY", options="OPTIONS",store="STORE",credits="CREDITS";
     private Random generator;
+    ConfettoGenerator confettoGenerator;
     int no_of_stars= 230;
     float [] genStars;
     int a=0;
@@ -92,6 +98,13 @@ public class TitleView extends View {
             genStars[b]=generator.nextInt(screenH);
             b += 2;
         }
+        confettoGenerator = new ConfettoGenerator() {
+            @Override
+            public Confetto generateConfetto(Random random) {
+                return new Particles(Assets.particle_blue);
+                //return new BitmapConfetto(particle_blue);
+            }
+        };
     }
 
 
@@ -102,11 +115,21 @@ public class TitleView extends View {
         screenH = h;
     }
 
+    public ConfettiManager animateConfetti(Context context, ConfettoGenerator confettoGenerator, int confettiX, int confettiY, ViewGroup parentView){
+        Log.d("viewgroup","ViewGroup in titleView: "+parentView);
+        return new ConfettiManager(context,confettoGenerator,new ConfettiSource(confettiX,confettiY), parentView)
+                .setEmissionRate(40)
+                .setVelocityX(-100)
+                .setVelocityY(0,40)
+                .setEmissionDuration(600)
+                .setTTL(1300)
+                .animate();
+    }
+
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        canvas.drawARGB(255, 0, 0, 43);
-
+        canvas.drawARGB(255, 0, 0, 0);
         //canvas.drawText("Right side = new features testing,    Left side = normal game.",30,50,paint);
         //canvas.drawText("tap on either the left side or right side of the screen",30,90,paint);
         canvas.drawText(title,(float)(screenW*0.5),(float)(screenH*0.13),titlePaint);
@@ -144,8 +167,15 @@ public class TitleView extends View {
         int Y = (int) event.getY();
         switch (eventaction) {
             case MotionEvent.ACTION_DOWN:
+
+                break;
+            case MotionEvent.ACTION_MOVE:
+                animateConfetti(getContext(),confettoGenerator,X,Y,(ViewGroup) this.getParent());
                 break;
             case MotionEvent.ACTION_UP:
+                if(X>sW/2) {
+                    //animateConfetti(getContext(),confettoGenerator,X,sH/2,(ViewGroup) this.getParent());
+                }
                 if(playRect.contains(X,Y)){
                     intent = new Intent(getContext(), MainActivity.class);
                     intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -178,7 +208,7 @@ public class TitleView extends View {
                 }
                 break;
         }
-        invalidate();
+        //invalidate();
         return true;
     }
 

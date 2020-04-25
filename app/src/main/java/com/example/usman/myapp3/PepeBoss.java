@@ -48,14 +48,6 @@ public class PepeBoss {
         pepeRect.set(0,0,0,0);
         GameView.setBringPepe(false);
     }
-    public void specialAttack(){
-        for(int i=0; i<300; i++){
-            pX -= 2;
-        }
-    }
-    public void goBack(){
-        pX += 200;
-    }
 
     public void update(){
         pepeRect.set(pX,pY,pX+Assets.pepeBoss.getWidth(),pY+Assets.pepeBoss.getHeight());
@@ -76,7 +68,6 @@ public class PepeBoss {
             for(int i=0; i==0; i++) {
                 MainActivity.score += 350;
             }
-
         }
     }
     public void shoot() {

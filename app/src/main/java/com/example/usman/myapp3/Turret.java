@@ -16,8 +16,8 @@ public class Turret{
     }
 
     private Rect tR;
-    public int health = 50;
-    public Matrix matrix = new Matrix();
+    int health = 50;
+    Matrix matrix = new Matrix();
     protected static double rotationAngleinDeg, rotationAngleinRad;
 
     public ArrayList<TurretProjectiles> getTurretProjectiles() {
@@ -30,11 +30,11 @@ public class Turret{
         rotationAngleinRad = rotationAngleinDeg*(Math.PI/180);
         tX = startX;
         tY = startY;
-        centerX = tX + Assets.turret.getHeight()/2;
-        centerY = tY + Assets.turret.getHeight()/2;
+        centerX = tX + Assets.turret.getHeight()/2f;
+        centerY = tY + Assets.turret.getHeight()/2f;
         tR = new Rect(0,0,0,0);
     }
-    public void shoot(){
+    void shoot(){
         rotationAngleinRad = rotationAngleinDeg*(Math.PI/180);
         TurretProjectiles tp = new TurretProjectiles((int)(Turret.centerX + (51.5*scale)*(Math.cos(rotationAngleinRad))), (int)(Turret.centerY + (51.5*scale)*(Math.sin(rotationAngleinRad))));
         turretProjectiles.add(tp);

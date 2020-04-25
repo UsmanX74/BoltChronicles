@@ -2,13 +2,15 @@ package com.example.usman.myapp3;
 
 import android.graphics.Rect;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 
 public class Enemy {
 
      int eX;
     int eY;
-    private ArrayList<Enemy> enemies = new ArrayList<Enemy>();
+    private List<Enemy> enemies = new CopyOnWriteArrayList<Enemy>();
     int speedX;
     private boolean visible;
     private Rect enemyRect = new Rect();
@@ -62,7 +64,7 @@ public class Enemy {
     public void setVisible(boolean visible) {
         this.visible = visible;
     }
-    public ArrayList<Enemy> getEnemies() {
+    public List<Enemy> getEnemies() {
         return enemies;
     }
     public void setSpeedX(int speedX) {

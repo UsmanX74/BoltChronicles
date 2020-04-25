@@ -15,7 +15,6 @@ public class BossShip {
     private Rect r = new Rect();
     private boolean visible;
     private int i = 0;
-    private int n;
     Boltship bs;
 
     public BossShip(int startX, int startY){
@@ -23,7 +22,6 @@ public class BossShip {
         vY = startY;
         health = 100;
         r.set(0, 0, 0, 0);
-        n=vX;
     }
     public void init(){
         health = 100;
@@ -47,29 +45,24 @@ public class BossShip {
                 vY += speedY;
             }
         }
-        if(health == 0 || health == -10){
+        if(health<0){
+            health=0;
+        }
+        if(health == 0){
             visible = false;
             vX = -600;
             vY= -600;
             GameView.setBringBoss(false);
-            MainActivity.setScore(MainActivity.getScore() + 400);
+            for(int i=0; i==0; i++) {
+                MainActivity.score += 400;
+            }
         }
         i++;
-    }
-    public void die(){
-        visible = false;
-
     }
 
     public void shoot(){
         BossProjectiles bp = new BossProjectiles((int)(vX+Assets.bossShip.getWidth()*0.1),(int)(vY+Assets.bossShip.getHeight()*0.2));
         bossProjectiles.add(bp);
-    }
-    public void specialAttack(){
-        vX-=170;
-    }
-    public void goBack(){
-        vX += 170;
     }
 
     public void follow(){

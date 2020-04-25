@@ -14,6 +14,8 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 
+import com.google.gson.Gson;
+
 public class TitleActivity extends Activity {
     public static int sW,sH;
     int uiOptions;
@@ -21,7 +23,8 @@ public class TitleActivity extends Activity {
     //DECLARE ALL BITMAP VARIABLES HERE:
     static SharedPreferences preferences;
     static Bitmap tempPepe;
-    protected int totalCoins;
+    protected static int totalCoins;
+    protected static int sessionCoins;
     protected static float currentSoundVolume,currentMusicVolume,currentSoundSliderValue,currentMusicSliderValue;
     protected static final float DEFAULT_MUSIC_SLIDER_VALUE = 1f ,DEFAULT_SOUND_SLIDER_VALUE = 20f, TOTAL_NUMBER_OF_STEPS = 50f;
 
@@ -59,8 +62,8 @@ public class TitleActivity extends Activity {
         currentMusicSliderValue = preferences.getFloat("currentMusicSliderValue",(DEFAULT_MUSIC_SLIDER_VALUE));
         currentSoundVolume = (Assets.manageVolume(currentSoundSliderValue))/5f;
         currentMusicVolume = Assets.manageVolume(currentMusicSliderValue);
+        totalCoins = preferences.getInt("TotalCoins",0);//https://www.youtube.com/watch?v=I-Tn6PoJ-z0&t=0s discord custom roles
         editor.apply();
-        //totalCoins = preferences.getInt("TotalCoins",0);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
         Assets.mp.setVolume(currentMusicVolume,currentMusicVolume);
         if(!Assets.mp.isPlaying()){
